@@ -14,5 +14,5 @@
             <?=$row['item'] ?>
         </td>
     </tr>
-    <? endforeach; ?>
+    <?php endforeach; ?>
 </table>

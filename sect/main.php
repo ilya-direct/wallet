@@ -1,6 +1,7 @@
 <?php
 $DB=new mysqli('localhost','root','','wallet',3306);
 $DB->query("SET NAMES 'utf8'"); // кодировка
+header("Content-Type: text/html; charset=utf-8");
 $result=$DB->query('
   SELECT s.value as sign,
          c.name as card,
@@ -17,4 +18,4 @@ $TPL->table=array();
 while(($row=$result->fetch_assoc())!=false){
     $TPL->table[]=$row;
 }
-include('/templates/main.tpl.php');
+include('../templates/main.tpl.php');
