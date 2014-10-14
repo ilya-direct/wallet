@@ -12,10 +12,9 @@ $result=$DB->query('
       left join sign s  on rec.signid=s.id
       left join card c  on rec.cardid=c.id;
       ');
-print_r($result);
 $TPL=new stdClass();
 $TPL->table=array();
 while(($row=$result->fetch_assoc())!=false){
     $TPL->table[]=$row;
 }
-include('../templates/main.tpl.php');
+include('/templates/main.tpl.php');
