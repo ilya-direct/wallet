@@ -17,4 +17,8 @@ $TPL->table=array();
 while(($row=$result->fetch_assoc())!=false){
     $TPL->table[]=$row;
 }
+$cards=$DB->query('select name from card');
+while(($card=$cards->fetch_assoc())!=false){
+	$TPL->cards[]=$card;
+}
 include('/templates/main.tpl.php');

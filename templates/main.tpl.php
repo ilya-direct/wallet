@@ -8,7 +8,6 @@
 	<link rel="stylesheet" href="css/style.css">
 	<script type="text/javascript" src="js/jquery.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="js/calendar.js"></script>
 </head>
 <body>
 
@@ -26,12 +25,20 @@
 				<thead>
 				<tr><td>‹<td colspan="5"><td>›
 				<tr><td>Пн<td>Вт<td>Ср<td>Чт<td>Пт<td>Сб<td>Вс
-				</thead>
-						<tbody>		</tbody>
+						<tbody>
 			</table>
 		</div>
 		<div class="span9">
-			<table class="table">
+			<table class="table table-striped table-bordered table-hover" id="main-table">
+				<thead>
+				<tr>
+					<th>Знак</th>
+					<th>Счёт</th>
+					<th>Сумма</th>
+					<th>Элемент</th>
+				</tr>
+				</thead>
+				<tbody>
 				<?php foreach ($TPL->table as $row): ?>
 					<tr>
 						<td>
@@ -48,6 +55,29 @@
 						</td>
 					</tr>
 				<?php endforeach; ?>
+				<form class="form-inline">
+					<?php for($i=0; $i<3;$i++): ?>
+					<tr>
+						<td>
+							<select class="span1">
+								<option>-</option>
+								<option>+</option>
+							</select>
+						</td>
+						<td>
+							<select class="span1">
+							<?php foreach ($TPL->cards as $card): ?>
+								<option> 	<img src="/images/<?=$card['name'] ?>_icon.jpg"></option>
+							<?php endforeach; ?>
+							</select>
+						</td>
+						<td><input type="text" class="input-small"></td>
+						<td><input type="text" class="input-small" ></td>
+					</tr>
+					<?php endfor; ?>
+					<tr><button class="btn btn-primary" type="button">Сохранить</button></tr>
+				</form>
+				</tbody>
 			</table>
 		</div>
 	</div>
@@ -59,3 +89,4 @@
 </div>
 </body>
 </html>
+<script type="text/javascript" src="js/calendar.js"></script>

@@ -2,18 +2,20 @@
     background-color: rgba(210, 192, 27, 0.70);
 }
 .span9{
-    background-color: rgba(64, 210, 29, 0.70);
+
+
 }
 .container{
-    background-color: #ede4eb;
 }
 
 #header {
     background: #b6ebff;
+    height: 50px;
 }
 
 #footer {
     background: #b6ebff;
+    height: 25px;
 }
 
 /*  Для календаря  */
@@ -46,3 +48,10 @@
 }
 /* конец для календаря  */
 
+#main-table thead tr{
+    background: #2f3234;
+    color: #fafafa;
+}
+#main-table{
+    margin: 10px 0px;
+}
