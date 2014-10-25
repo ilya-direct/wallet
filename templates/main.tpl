@@ -39,22 +39,14 @@
 				</tr>
 				</thead>
 				<tbody>
-				<?php foreach ($TPL->table as $row): ?>
+                {foreach from=$table item=row}
 					<tr>
-						<td>
-							<?= $row['sign'] ?>
-						</td>
-						<td>
-							<img src="/images/<?= $row['card'] ?>_icon.jpg">
-						</td>
-						<td>
-							<?= $row['sum'] ?>
-						</td>
-						<td>
-							<?= $row['item'] ?>
-						</td>
+						<td>{$row['sign']}</td>
+						<td><img src="/images/{$row['card']}_icon.jpg"></td>
+						<td>{$row['sum']}</td>
+						<td>{$row['item']}</td>
 					</tr>
-				<?php endforeach; ?>
+				{/foreach}
 				<form class="form-inline">
 					<?php for($i=0; $i<3;$i++): ?>
 					<tr>
@@ -66,9 +58,9 @@
 						</td>
 						<td>
 							<select class="span1">
-							<?php foreach ($TPL->cards as $card): ?>
-								<option> 	<img src="/images/<?=$card['name'] ?>_icon.jpg"></option>
-							<?php endforeach; ?>
+							{foreach from=$cards item=card}
+								<option><img src="/images/{$card['name']}_icon.jpg"></option>
+							{/foreach}
 							</select>
 						</td>
 						<td><input type="text" class="input-small"></td>
