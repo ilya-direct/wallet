@@ -1,5 +1,5 @@
 <?php
-require_once('Smarty.class.php');
+require_once('lib/smarty/Smarty.class.php');
 $smarty = new Smarty();
 $DB=new mysqli('localhost','root','','wallet',3306);
 $DB->query("SET NAMES 'utf8'"); // кодировка
