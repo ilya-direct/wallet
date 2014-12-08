@@ -25,6 +25,14 @@ function get_sign_id($sign){
 		elseif ($sign==='m') return 2;
 			else return 3;
 }
+function transaction_exists($sign,$sum,$itemid,$date){
+	Global $DB;
+	$sum=(int) $sum;
+	$sign_id=get_sign_id($sign);
+	return $DB->record_exists("select * from  record where  signid={$sign_id}
+						and sum={$sum} and itemid={$itemid} and time='{$date}'");
+
+}
 function insert_transaction($sign,$sum,$itemid,$date){
 	Global $DB;
 	$sum=(int) $sum;

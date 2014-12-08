@@ -35,6 +35,6 @@ class  mysqli_DB{
 
 	public function insert_record_sql($sql){
 		$mysql_result=$this->DB->query($sql);
-		return $mysql_result->insert_id;
+		return $this->DB->insert_id;
 	}
 }

@@ -23,21 +23,21 @@ while(($data=fgetcsv($h,null,';'))!==false){
 			if (empty(trim($data[$i]))) continue;
 			$coins=explode('|',$data[$i]);
 			$coins_desc=explode('|',$data[$i+1]);
-			if (count($coins)!=count($coins_desc)) die("Неверная запись");
+			if (count($coins)!=count($coins_desc)) die("Неверная запись {$data[$i]} {$data[$i+1]}");
 			for($j=0;$j<count($coins);$j++){
-				if(item_exists($coins_desc[$j])){
-					$itemid=get_item_id($coins_desc[$j]);
-				}else{
-					$itemid=insert_item($coins_desc[$j]);
+				$itemid=item_exists($coins_desc[$j]) ? get_item_id($coins_desc[$j]) : insert_item($coins_desc[$j]);
+				if (!transaction_exists($sign,$data[$i],$itemid,$date)){
+					insert_transaction($sign,$data[$i],$itemid,$date);
 				}
-				insert_transaction($sign,$coins[$j],$itemid,$date);
 			}
 
 		}elseif(count(explode('_',$header[$i]))===2){
 			if (empty(trim($data[$i]))) continue;
 			$item=explode('_',$header[$i])[1];
 			$itemid=item_exists($item) ? get_item_id($item) : insert_item($item);
-			//insert_transaction($sign,$data[$j],$itemid,$date);
+			if (!transaction_exists($sign,$data[$i],$itemid,$date)){
+				insert_transaction($sign,$data[$i],$itemid,$date);
+			}
 		}
 	}
 
