@@ -7,9 +7,36 @@ $DB=new mysqli_DB();
 
 $file='fin/nov2014.csv';
 $h=fopen($file,'r');
-$header=fgetcsv($h,null,';');
 
 $records=array();
+
+$fields=array(
+	'Дата' => 'date',
+	'Мама'=>'p_mom_multiple',
+	'Мама (PM)'=> 'p_mompm',
+	'Ученики'=> 'p_pupils',
+	'Другие доходы'=> 'p_other_multiple',
+	'MTI'=> 'm_mti',
+	'бенз'=> 'm_petrol',
+	'Моб'=> 'm_mobile',
+	'iPad'=> 'm_mobile',
+	'Мобила'=> 'm_mobile',
+	'Гулянки'=> 'm_spend_multiple',
+	'Другие расходы'=> 'm_other_multiple',
+);
+$headers=fgetcsv($h,null,';');
+
+for($i=0; $i<count($headers); $i++){
+	if(!array_key_exists($headers[$i],$fields)) $headers[$i]='undef';
+	$field_name=$fields[$headers[$i]];
+	$field_array=explode('_',$field_name);
+	if((count($field_array)==2) or (count($field_array)==1)){
+		$headers[$i]=$field_name;
+	}elseif(count($field_array)===3 && $field_array[2]=='multiple'){
+		$headers[$i]=$field_name;
+		$headers[++$i]=$field_array[0].'_'.$field_array[1].'_'.'desc';
+	}
+}
 
 while(($data=fgetcsv($h,null,';'))!==false){
 	list($d,$m,$y)=explode('.',$data[0]);
