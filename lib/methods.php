@@ -23,21 +23,24 @@ function get_item_id($item){
 function get_sign_id($sign){
 	if ($sign==='p') return 1;
 		elseif ($sign==='m') return 2;
-			else return 3;
+	return 3;
 }
-function transaction_exists($sign,$sum,$itemid,$date){
+function transaction_exists($sign,$sum,$item,$date){
 	Global $DB;
 	$sum=(int) $sum;
 	$sign_id=get_sign_id($sign);
+	$item_id=item_exists($item) ? get_item_id($item) : insert_item($item);
 	return $DB->record_exists("select * from  record where  signid={$sign_id}
-						and sum={$sum} and itemid={$itemid} and time='{$date}'");
+						and sum={$sum} and itemid={$item_id} and time='{$date}'");
 
 }
-function insert_transaction($sign,$sum,$itemid,$date){
+function insert_transaction($sign,$sum,$item,$date){
 	Global $DB;
-	$sum=(int) $sum;
 	$sign_id=get_sign_id($sign);
-	$id=$DB->insert_record_sql("insert into record (signid,sum,itemid,time) values({$sign_id},{$sum},{$itemid},'{$date}')");
+	$sum=(int) $sum;
+	if ($sign_id==1 or $sign_id==2) $sum=abs($sum);
+	$item_id=item_exists($item) ? get_item_id($item) : insert_item($item);
+	$id=$DB->insert_record_sql("insert into record (signid,sum,itemid,time) values({$sign_id},{$sum},{$item_id},'{$date}')");
 
 	return $id;
 }
