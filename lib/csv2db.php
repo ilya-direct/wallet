@@ -48,6 +48,7 @@ while (false !== ($file_name = readdir($dir_handle))) {
 				$coins_desc=explode('|',$data[$i+1]);
 				if (count($coins)!=count($coins_desc)) die("Неверная запись {$data[$i]} {$data[$i+1]}");
 				for($j=0;$j<count($coins);$j++){
+					if(empty($coins_desc[$j])) die("Нет описания $date {$data[$i]} {$data[$i+1]}");
 					if (!transaction_exists($sign,$coins[$j],$coins_desc[$j],$date)){
 						insert_transaction($sign,$coins[$j],$coins_desc[$j],$date);
 					}
