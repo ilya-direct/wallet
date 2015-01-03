@@ -37,4 +37,36 @@ class  mysqli_DB{
 		$mysql_result=$this->DB->query($sql);
 		return $this->DB->insert_id;
 	}
+	public function get_field($table,$return,$conditions=array()){
+		$select="select `{$return}` ";
+		$from="from `{$table}` ";
+		$where='where ';
+		foreach($conditions as $name=>$value){
+			if($where!=='where ') $where.=' and';
+			if(is_numeric($value))
+				$where.=" `{$name}`={$value}";
+			else
+				$where.=" `{$name}`='{$value}'";
+		}
+		if(empty($conditions)) $where='';
+		$sql=$select.$from.$where;
+		return $this->get_record_sql($sql)->id;
+	}
+
+	public function insert_record($table,$keys){
+		//$keys=(array)$keys;
+		$cols='';
+		$values='';
+		foreach($keys as $name => $val){
+			$cols.=$name.',';
+			if(is_numeric($val))
+				$values=$val.',';
+			else
+				$values='\''.$val.'\',';
+		}
+		$cols=rtrim($cols,',');
+		$values=rtrim($values,',');
+		$sql="insert into {$table} ({$cols}) values({$values})";
+		return (int)$this->insert_record_sql($sql);
+	}
 }

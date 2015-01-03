@@ -4,9 +4,25 @@ require_once('../lib/mysqli_db.class.php');
 require_once('../lib/methods.php');
 
 $DB=new mysqli_DB();
-$dir_path='c:/wamp/www/wallet/finance/';
+$dir_path='c:/wamp/www/wallet/finance_csv/';
 $dir_handle=opendir($dir_path);
 if (!$dir_handle) die("Не удалось открыть дерикторию!");
+
+$fields=array(
+	'Дата' => 'd_date',
+	'Мама'=>'p_mom_multiple',
+	'Мама (PM)'=> 'p_mompm',
+	'Ученики'=> 'p_pupils',
+	'Другие доходы'=> 'p_other_multiple',
+	'MTI'=> 'm_mti',
+	'бенз'=> 'm_petrol',
+	'Моб'=> 'm_mobile',
+	'iPad'=> 'm_ipad',
+	'Мобила'=> 'm_mobile',
+	'Гулянки'=> 'm_spend_multiple',
+	'Другие расходы'=> 'm_other_multiple',
+	'Универ'=>'p_university'
+);
 
 while (false !== ($file_name = readdir($dir_handle))) {
 	echo "$file_name\n";
@@ -21,7 +37,8 @@ while (false !== ($file_name = readdir($dir_handle))) {
 	$file_handle=fopen($file_path,'r');
 	if(!$file_handle) die("Не удалось открыть файл $file_name в дериктории $dir_path!");
 	$headers=get_table_headers($file_handle);
-	array_cp1251_to_utf8($headers);
+	if ($headers===false) die("Строка с заголовком не найдена");
+	array_to_utf8($headers);
 	fix_headers($headers);
 
 	$date_index=array_search('d_date',$headers);
@@ -35,12 +52,12 @@ while (false !== ($file_name = readdir($dir_handle))) {
 		if(!preg_match('/^([\d]{2})\.([\d]{2})\.([\d]{4})$/',$date,$matches)) continue;
 		if($matches[1]!=$current_day || $matches[2]!=$month || $matches[3]!=$year) die('Дата не совпадает с ожидаемой');
 		fix_date($date);
-		array_cp1251_to_utf8($data);
+		array_to_utf8($data);
 		for($i=0;$i<count($headers);$i++){
 			if ($headers[$i]===false or $i===$date_index or empty(trim($data[$i]))) continue;
 			$header_parts=explode('_',$headers[$i]);
 			$sign=$header_parts[0];
-
+			$tcategory=$headers[$i];
 			if(count($header_parts)===3 && $header_parts[2]=='desc'){
 				continue;
 			}elseif(count($header_parts)===3 && $header_parts[2]=='multiple'){
@@ -49,33 +66,35 @@ while (false !== ($file_name = readdir($dir_handle))) {
 				if (count($coins)!=count($coins_desc)) die("Неверная запись {$data[$i]} {$data[$i+1]}");
 				for($j=0;$j<count($coins);$j++){
 					if(empty($coins_desc[$j])) die("Нет описания $date {$data[$i]} {$data[$i+1]}");
-					if (!transaction_exists($sign,$coins[$j],$coins_desc[$j],$date)){
-						insert_transaction($sign,$coins[$j],$coins_desc[$j],$date);
-					}
+					insert_transaction($sign,$coins[$j],$coins_desc[$j],$date,$tcategory);
 				}
 			}elseif(count($header_parts)===2){
-				$item=$header_parts[1];
-				if (!transaction_exists($sign,$data[$i],$item,$date)){
-					insert_transaction($sign,$data[$i],$item,$date);
-				}
+				$item=array_search($headers[$i],$fields);
+				insert_transaction($sign,$data[$i],$item,$date,$tcategory);
 			}
 		}
 	}
-
+	$flags=[
+		0b00001=>'Корректировка',
+		0b00010=>'Всего получено',
+		0b00100=>'Всего потрачено',
+		0b01000=>'Стартовый капитал',
+		0b10000=>'Конечный капитал'
+	];
+	$total_flag= 0b00000;
 	while(($data=fgetcsv($file_handle,null,';'))!==false){
-		switch(iconv( 'Windows-1251','UTF-8',$data[$date_index])){
-			case 'Корректировка':
-				insert_transaction('x',$data[$date_index+1],'Корректировка',"$year.$month.$maxday");
-				break;
-			case 'Всего получено':
-				break;
-			case 'Всего потрачено':
-				break;
-			case 'Стартовый капитал':
-				break;
-			case 'Конечный капитал':
-				break;
-
+		to_utf8($data[$date_index]);
+		if(in_array($data[$date_index],$flags)){
+			$total_flag=$total_flag | array_search($data[$date_index],$flags);
+			if($data[$date_index]=='Корректировка')
+				insert_transaction('x',$data[$date_index+1],$data[$date_index],"$year.$month.$maxday",'correcting');
+		}
+	}
+	foreach($flags as $flag => $value){
+		if ($total_flag & $flag){
+			echo "$value : ok \n";
+		}else{
+			echo "$value : false \n";
 		}
 	}
 
@@ -85,34 +104,21 @@ while (false !== ($file_name = readdir($dir_handle))) {
 echo "finished\n";
 
 function get_table_headers(&$handle){
-	$date=iconv('UTF-8', 'Windows-1251',"Дата");
+	$date="Дата";
 	while(($data=fgetcsv($handle,null,';'))!==false){
 		foreach($data as $cell){
+			to_utf8($cell);
 			if ($cell===$date){
 				return $data;
 			}
 		}
 	}
+	return false;
 }
 
 
 function fix_headers(&$headers){
-	$fields=array(
-		'Дата' => 'd_date',
-		'Мама'=>'p_mom_multiple',
-		'Мама (PM)'=> 'p_mompm',
-		'Ученики'=> 'p_pupils',
-		'Другие доходы'=> 'p_other_multiple',
-		'MTI'=> 'm_mti',
-		'бенз'=> 'm_petrol',
-		'Моб'=> 'm_mobile',
-		'iPad'=> 'm_ipad',
-		'Мобила'=> 'm_mobile',
-		'Гулянки'=> 'm_spend_multiple',
-		'Другие расходы'=> 'm_other_multiple',
-		'Универ'=>'p_university'
-	);
-
+	Global $fields;
 	for($i=0; $i<count($headers); $i++){
 		if(!array_key_exists($headers[$i],$fields)){
 			$headers[$i]=false;
@@ -135,10 +141,15 @@ function fix_headers(&$headers){
 	}
 
 }
+function to_utf8(&$str){
+	$encoding=mb_detect_encoding($str);
+	if($encoding=="UTF-8") return;
+	iconv( $encoding,'UTF-8',$str);
+}
 
-function array_cp1251_to_utf8(&$arr){
+function array_to_utf8(array &$arr){
 	foreach($arr as &$item){
-		$item=iconv( 'Windows-1251','UTF-8',$item);
+		to_utf8($item);
 	}
 }
 
