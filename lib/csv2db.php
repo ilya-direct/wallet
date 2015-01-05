@@ -9,9 +9,9 @@ $dir_handle=opendir($dir_path);
 if (!$dir_handle) die("Не удалось открыть дерикторию!");
 
 $fields=array(
-	'Дата' => 'd_date',
-	'Мама'=>'p_mom_multiple',
-	'Мама (PM)'=> 'p_mompm',
+	'Дата' => array('name'=>'d_date','sort'=>0),
+	'Мама'=>array('name'=>'p_mom_multiple','sort'=>3),
+	'Мама (PM)'=>array('name'=>'p_mompm','sort'=>10),
 	'Ученики'=> 'p_pupils',
 	'Другие доходы'=> 'p_other_multiple',
 	'MTI'=> 'm_mti',
@@ -87,7 +87,7 @@ while (false !== ($file_name = readdir($dir_handle))) {
 		if(in_array($data[$date_index],$flags)){
 			$total_flag=$total_flag | array_search($data[$date_index],$flags);
 			if($data[$date_index]=='Корректировка')
-				insert_transaction('x',$data[$date_index+1],$data[$date_index],"$year.$month.$maxday",'correcting');
+				insert_transaction('x',$data[$date_index+1],$data[$date_index],"$year.$month.$maxday",'t_correcting');
 		}
 	}
 	foreach($flags as $flag => $value){
