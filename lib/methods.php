@@ -3,7 +3,7 @@
 function item_exists($item){
 	Global $DB;
 	$item=trim($item);
-	return $DB->record_exists('select id from item where item.name=\''.$item.'\'');
+	return $DB->record_exists('item',array('name'=>$item));
 }
 
 function insert_item($item){
@@ -30,7 +30,7 @@ function transaction_exists($sign_id,$sum,$item_id,$date,$tcategory_id){
 	//$sum=(int) $sum;
 	//$sign_id=get_sign_id($sign);
 	//$item_id=item_exists($item) ? get_item_id($item) : insert_item($item);
-	return $DB->record_exists("select * from  record where  signid={$sign_id}
+	return $DB->record_exists_sql("select * from  record where  signid={$sign_id}
 				and sum={$sum} and itemid={$item_id} and time='{$date}' and tcategory={$tcategory_id} ");
 
 }
@@ -59,11 +59,11 @@ function get_category_id($category_name){
 
 function get_tcategory_id($tcategory){
 	Global $DB;
-	if($tcategory===false) return 0;
+	if($tcategory===false) die("не указана tcategory");
 	$tcategory=trim($tcategory);
-	if(empty($tcategory)) return 0;
-	if($DB->record_exists("select * from  transaction_category where  name='{$tcategory}'"))
-		return (int)$DB->get_field('transaction_category','id',array('name' => $tcategory));
+	if(empty($tcategory)) die("не указана tcategory");
+	if($DB->record_exists('transaction_category',array('name' => $tcategory,'deleted'=>0)))
+		return (int)$DB->get_field('transaction_category','id',array('name' => $tcategory,'deleted'=>0));
 	else
-		return $DB->insert_record('transaction_category',array('name' => $tcategory));
+		die("Категории(tcategory) $tcategory не существует в базе данных");
 }

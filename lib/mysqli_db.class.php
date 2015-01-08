@@ -2,13 +2,10 @@
 
 class  mysqli_DB{
 	public $DB;
-	private function execute_query($sql){
-		$result = $this->DB->query($sql)
-			or die ("Query error ". $this->DB->errno." : ".$this->DB->error."{\n".$sql."\n}");
-		return $result;
-	}
-	function mysqli_DB(){
-		$this->DB=new mysqli('localhost','root','','wallet',3306);
+	private $db_name;
+	function mysqli_DB($host='localhost',$username='root',$password='',$db_name='wallet',$port=3306){
+		$this->db_name=$db_name;
+		$this->DB=new mysqli($host,$username,$password,$this->db_name,$port);
 		/* проверяем соединение */
 		if (mysqli_connect_errno()) {
 			printf("Error description: %s ; Error code: %s ;\n",
@@ -16,6 +13,16 @@ class  mysqli_DB{
 			exit();
 		}
 		$this->execute_query("SET NAMES 'utf8'"); // кодировка
+	}
+	private function execute_query($sql){
+		//debug_print_backtrace();
+		//implode("\n",debug_backtrace());
+		if(($result = $this->DB->query($sql)) === false){
+			debug_print_backtrace();
+			echo "\nQuery error ". $this->DB->errno." : ".$this->DB->error."\n".$sql."\n";
+			die();
+		}
+		return $result;
 	}
 	public function get_records_sql($sql){
 		$mysql_result=$this->execute_query($sql);
@@ -28,16 +35,19 @@ class  mysqli_DB{
 	}
 	public function get_record_sql($sql){
 		$mysql_result=$this->execute_query($sql);
-		if($mysql_result->num_rows>1) trigger_error("more than one record");
+		if($mysql_result->num_rows>1) trigger_error("more than one record\n$sql");
 		if($mysql_result->num_rows===0) return false;
 		return $mysql_result->fetch_object();
 	}
-
-	public function record_exists($sql){
+	public function record_exists_sql($sql){
 		$mysql_result=$this->execute_query($sql);
 		return $mysql_result->num_rows>0 ? true : false;
 	}
-
+	public function record_exists($table,$where){
+		$where=$this->conditions_to_sql($where);
+		$sql="select * from {$table} where {$where}";
+		return $this->record_exists_sql($sql);
+	}
 	public function insert_record_sql($sql){
 		$mysql_result=$this->execute_query($sql);
 		return $this->DB->insert_id;
@@ -55,9 +65,8 @@ class  mysqli_DB{
 		}
 		if(empty($conditions)) $where='';
 		$sql=$select.$from.$where;
-		return $this->get_record_sql($sql)->id;
+		return $this->get_record_sql($sql)->$return;
 	}
-
 	public function get_field_sql($sql){
 		$mysql_result=$this->execute_query($sql);;
 		if ($mysql_result->num_rows==0) return false;
@@ -71,7 +80,6 @@ class  mysqli_DB{
 			return (string) $mysql_result->fetch_object()->$return;
 		}
 	}
-
 	public function get_fieldset_sql($sql){
 		$mysql_result=$this->execute_query($sql);
 		if ($mysql_result->num_rows==0) return false;
@@ -83,6 +91,10 @@ class  mysqli_DB{
 		}
 		return $result_array;
 	}
+	public function get_fieldset($table,$return,array $where=array()){
+		$where=$this->conditions_to_sql($where);
+		return $this->get_fieldset_sql("select {$return} from {$table} where {$where}");
+	}
 
 	public function insert_record($table,$keys){
 		//$keys=(array)$keys;
@@ -91,13 +103,44 @@ class  mysqli_DB{
 		foreach($keys as $name => $val){
 			$cols.=$name.',';
 			if(is_numeric($val))
-				$values=$val.',';
+				$values.=$val.',';
 			else
-				$values='\''.$val.'\',';
+				$values.='\''.$val.'\',';
 		}
 		$cols=rtrim($cols,',');
 		$values=rtrim($values,',');
 		$sql="insert into {$table} ({$cols}) values({$values})";
 		return (int)$this->insert_record_sql($sql);
+	}
+	public function update_record($table,$obj){
+		$obj=(object) $obj;
+		$this->DB->select_db('INFORMATION_SCHEMA');
+		$primary=$this->get_field('COLUMNS','COLUMN_NAME',array(
+			'TABLE_SCHEMA' => $this->db_name,
+			'TABLE_NAME' => $table,
+			'COLUMN_KEY' => 'PRI'));
+		$this->DB->select_db($this->db_name);
+		if(property_exists($obj,$primary)){
+			$where=$this->conditions_to_sql(array("{$primary}"=>$obj->$primary));
+			unset($obj->$primary);
+			$set=$this->conditions_to_sql($obj,',');
+			$this->execute_query("update {$table} set {$set} where {$where}");
+		}
+	}
+	public function get_field_info($sql){
+		/* Получим информацию обо всех столбцах */
+		//$finfo = $mysqli_result->fetch_fields();
+		//var_dump($finfo);
+	}
+	private function conditions_to_sql($conds,$separator='and'){
+		$str='';
+		foreach($conds as $name=>$value){
+			if($str!=='') $str.=' '.$separator;
+			if(is_numeric($value))
+				$str.=" `{$name}`={$value}";
+			else
+				$str.=" `{$name}`='{$value}'";
+		}
+		return $str;
 	}
 }

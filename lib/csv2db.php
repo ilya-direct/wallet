@@ -8,22 +8,6 @@ $dir_path='c:/wamp/www/wallet/finance_csv/';
 $dir_handle=opendir($dir_path);
 if (!$dir_handle) die("Не удалось открыть дерикторию!");
 
-$fields=array(
-	'Дата' => array('name'=>'d_date','sort'=>0),
-	'Мама'=>array('name'=>'p_mom_multiple','sort'=>3),
-	'Мама (PM)'=>array('name'=>'p_mompm','sort'=>10),
-	'Ученики'=> 'p_pupils',
-	'Другие доходы'=> 'p_other_multiple',
-	'MTI'=> 'm_mti',
-	'бенз'=> 'm_petrol',
-	'Моб'=> 'm_mobile',
-	'iPad'=> 'm_ipad',
-	'Мобила'=> 'm_mobile',
-	'Гулянки'=> 'm_spend_multiple',
-	'Другие расходы'=> 'm_other_multiple',
-	'Универ'=>'p_university'
-);
-
 while (false !== ($file_name = readdir($dir_handle))) {
 	echo "$file_name\n";
 	if (!preg_match('/^([\d]{2})\.([\d]{4})/',$file_name,$matches)) continue;
@@ -41,7 +25,7 @@ while (false !== ($file_name = readdir($dir_handle))) {
 	array_to_utf8($headers);
 	fix_headers($headers);
 
-	$date_index=array_search('d_date',$headers);
+	$date_index=array_search('date',$headers);
 	if ($date_index===false) die('В заголовках нет даты!');
 
 	$maxday=date('d',mktime(0,0,0,$month+1,0,$year));
@@ -51,13 +35,14 @@ while (false !== ($file_name = readdir($dir_handle))) {
 		$date=$data[$date_index];
 		if(!preg_match('/^([\d]{2})\.([\d]{2})\.([\d]{4})$/',$date,$matches)) continue;
 		if($matches[1]!=$current_day || $matches[2]!=$month || $matches[3]!=$year) die('Дата не совпадает с ожидаемой');
-		fix_date($date);
+		$date="{$year}.{$month}.{$current_day}";
+		$data[$date_index]=''; //
 		array_to_utf8($data);
 		for($i=0;$i<count($headers);$i++){
-			if ($headers[$i]===false or $i===$date_index or empty(trim($data[$i]))) continue;
+			if ($headers[$i]===false or empty(trim($data[$i]))) continue;
 			$header_parts=explode('_',$headers[$i]);
+			if ($header_parts<2) die("Неверное имя tcategory ($headers[$i]) дата $date");
 			$sign=$header_parts[0];
-			$tcategory=$headers[$i];
 			if(count($header_parts)===3 && $header_parts[2]=='desc'){
 				continue;
 			}elseif(count($header_parts)===3 && $header_parts[2]=='multiple'){
@@ -66,11 +51,11 @@ while (false !== ($file_name = readdir($dir_handle))) {
 				if (count($coins)!=count($coins_desc)) die("Неверная запись {$data[$i]} {$data[$i+1]}");
 				for($j=0;$j<count($coins);$j++){
 					if(empty($coins_desc[$j])) die("Нет описания $date {$data[$i]} {$data[$i+1]}");
-					insert_transaction($sign,$coins[$j],$coins_desc[$j],$date,$tcategory);
+					insert_transaction($sign,$coins[$j],$coins_desc[$j],$date,$headers[$i]);
 				}
 			}elseif(count($header_parts)===2){
-				$item=array_search($headers[$i],$fields);
-				insert_transaction($sign,$data[$i],$item,$date,$tcategory);
+				$item=$DB->get_field('transaction_category','value',array('name'=>$headers[$i],'deleted'=>0));
+				insert_transaction($sign,$data[$i],$item,$date,$headers[$i]);
 			}
 		}
 	}
@@ -87,7 +72,7 @@ while (false !== ($file_name = readdir($dir_handle))) {
 		if(in_array($data[$date_index],$flags)){
 			$total_flag=$total_flag | array_search($data[$date_index],$flags);
 			if($data[$date_index]=='Корректировка')
-				insert_transaction('x',$data[$date_index+1],$data[$date_index],"$year.$month.$maxday",'t_correcting');
+				insert_transaction('x',$data[$date_index+1],$data[$date_index],"$year.$month.$maxday",'correcting');
 		}
 	}
 	foreach($flags as $flag => $value){
@@ -118,15 +103,15 @@ function get_table_headers(&$handle){
 
 
 function fix_headers(&$headers){
-	Global $fields;
+	Global $DB;
 	for($i=0; $i<count($headers); $i++){
-		if(!array_key_exists($headers[$i],$fields)){
+		if(!$DB->record_exists('transaction_category',array('value'=>$headers[$i]))){
 			$headers[$i]=false;
 			continue;
 		}
-		$field_name=$fields[$headers[$i]];
+		$field_name=$DB->get_field('transaction_category','name',array('value'=>$headers[$i]));
 		$field_array=explode('_',$field_name);
-		if(count($field_array)==2){
+		if(count($field_array)<=2){
 			$headers[$i]=$field_name;
 			continue;
 		}elseif(count($field_array)===3 && $field_array[2]=='multiple'){
