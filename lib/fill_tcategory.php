@@ -8,7 +8,7 @@ $fields=array(
 	'Мама (PM)'=>array('name'=>'p_mompm','sort'=>3),
 	'Ученики'=> array('name'=>'p_pupils','sort'=>4),
 	'Другие доходы'=> array('name'=>'p_other_multiple','sort'=>5),
-	'Универ'=>array('name'=>'p_university','sort'=>6),
+	'Универ'=>array('name'=>'m_university','sort'=>6),
 	'MTI'=> array('name'=>'m_mti','sort'=>7),
 	'бенз'=> array('name'=>'m_petrol','sort'=>8),
 	'Моб'=> array('name'=>'m_mobile','sort'=>8,'deleted'=>1),
