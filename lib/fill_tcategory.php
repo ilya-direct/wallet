@@ -16,10 +16,19 @@ $fields=array(
 	'iPad'=> array('name'=>'m_ipad','sort'=>10),
 	'Гулянки'=> array('name'=>'m_spend_multiple','sort'=>11),
 	'Другие расходы'=> array('name'=>'m_other_multiple','sort'=>12),
-	'Корректировка'=>array('name'=>'correcting','sort'=>13)
+	'Корректировка'=>array('name'=>'correcting','sort'=>13),
+	'ТС по расчету'=>array('name'=>'countmoney','sort'=>14),
+	'ТС по деньгам'=>array('name'=>'realmoney','sort'=>15),
+	'Разница'=>array('name'=>'difference','sort'=>16)
 );
 
 foreach($fields as $value => $params){
+	if(preg_match('/^([pm])_/',$params['name'],$matches)){
+		$params['sign']=($matches[1]=='p') ? 1 : 2;
+		unset($matches);
+	}else{
+		$params['sign']=0;
+	}
 	if($DB->record_exists('transaction_category',array('value'=>$value))){
 		$id=$DB->get_field('transaction_category','id',array('value'=>$value));
 		$params['id']=$id;

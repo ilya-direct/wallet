@@ -9,22 +9,33 @@ $dir_handle=opendir($dir_path);
 if (!$dir_handle) die("Не удалось открыть дерикторию!");
 
 while (false !== ($file_name = readdir($dir_handle))) {
-	echo "$file_name\n";
-	if (!preg_match('/^([\d]{2})\.([\d]{4})/',$file_name,$matches)) continue;
-	$month=$matches[1];
-	$year =$matches[2];
+	echo "$file_name";
+	if (!preg_match('/^([\d]{4})\.([\d]{2})/',$file_name,$matches)){
+		echo "\n";
+		continue;
+	}
+	$year=$matches[1];
+	$month =$matches[2];
 	unset($matches);
 
-	echo " $month $year\n";
+	echo "($year $month)\n";
 
 	$file_path=$dir_path.$file_name;
 	$file_handle=fopen($file_path,'r');
 	if(!$file_handle) die("Не удалось открыть файл $file_name в дериктории $dir_path!");
-	$headers=get_table_headers($file_handle);
-	if ($headers===false) die("Строка с заголовком не найдена");
-	array_to_utf8($headers);
-	fix_headers($headers);
+	$headers_1=get_table_headers($file_handle,"ТС по расчету");
 
+	if ($headers_1===false) die("Строка с корректировкой баланса не найдена");
+	array_to_utf8($headers_1);
+	fix_headers($headers_1);
+
+	$headers_2=get_table_headers($file_handle,"Дата");
+	if ($headers_2===false) die("Строка с основным заголовком не найдена");
+	array_to_utf8($headers_2);
+	fix_headers($headers_2);
+
+	$headers=merge_headers($headers_1,$headers_2);
+	unset($headers_1); unset($headers_2);
 	$date_index=array_search('date',$headers);
 	if ($date_index===false) die('В заголовках нет даты!');
 
@@ -36,12 +47,26 @@ while (false !== ($file_name = readdir($dir_handle))) {
 		if(!preg_match('/^([\d]{2})\.([\d]{2})\.([\d]{4})$/',$date,$matches)) continue;
 		if($matches[1]!=$current_day || $matches[2]!=$month || $matches[3]!=$year) die('Дата не совпадает с ожидаемой');
 		$date="{$year}.{$month}.{$current_day}";
-		$data[$date_index]=''; //
 		array_to_utf8($data);
 		for($i=0;$i<count($headers);$i++){
 			if ($headers[$i]===false or empty(trim($data[$i]))) continue;
 			$header_parts=explode('_',$headers[$i]);
-			if ($header_parts<2) die("Неверное имя tcategory ($headers[$i]) дата $date");
+			if (count($header_parts)==1){
+				if($headers[$i]=='realmoney'){
+					$table='balance_check';
+					$params=array('date'=>$date,
+						'consider'=>array_search('countmoney',$headers),
+						'real'=>$data[$i],
+						'diff'=>array_search('difference',$headers));
+					if($DB->record_exists($table,$params)){
+						$DB->update_record($table,$params);
+					}else{
+						$DB->insert_record($table,$params);
+					}
+					unset($table); unset($params);
+				}
+				continue;
+			}
 			$sign=$header_parts[0];
 			if(count($header_parts)===3 && $header_parts[2]=='desc'){
 				continue;
@@ -51,11 +76,11 @@ while (false !== ($file_name = readdir($dir_handle))) {
 				if (count($coins)!=count($coins_desc)) die("Неверная запись {$data[$i]} {$data[$i+1]}");
 				for($j=0;$j<count($coins);$j++){
 					if(empty($coins_desc[$j])) die("Нет описания $date {$data[$i]} {$data[$i+1]}");
-					insert_transaction($sign,$coins[$j],$coins_desc[$j],$date,$headers[$i]);
+					insert_transaction($date,$headers[$i],$coins[$j],$coins_desc[$j]);
 				}
 			}elseif(count($header_parts)===2){
 				$item=$DB->get_field('transaction_category','value',array('name'=>$headers[$i],'deleted'=>0));
-				insert_transaction($sign,$data[$i],$item,$date,$headers[$i]);
+				insert_transaction($date,$headers[$i],$data[$i],$item);
 			}
 		}
 	}
@@ -72,7 +97,7 @@ while (false !== ($file_name = readdir($dir_handle))) {
 		if(in_array($data[$date_index],$flags)){
 			$total_flag=$total_flag | array_search($data[$date_index],$flags);
 			if($data[$date_index]=='Корректировка')
-				insert_transaction('x',$data[$date_index+1],$data[$date_index],"$year.$month.$maxday",'correcting');
+				insert_transaction("$year.$month.$maxday",'correcting',$data[$date_index+1],$data[$date_index]);
 		}
 	}
 	foreach($flags as $flag => $value){
@@ -82,18 +107,19 @@ while (false !== ($file_name = readdir($dir_handle))) {
 			echo "$value : false \n";
 		}
 	}
-
+	echo " ok! \n";
+	fclose($file_handle);
 
 }
 
 echo "finished\n";
 
-function get_table_headers(&$handle){
-	$date="Дата";
+function get_table_headers(&$handle,$needle){
+	if (is_null($needle) or empty($needle)) return false;
 	while(($data=fgetcsv($handle,null,';'))!==false){
 		foreach($data as $cell){
 			to_utf8($cell);
-			if ($cell===$date){
+			if ($cell===$needle){
 				return $data;
 			}
 		}
@@ -142,4 +168,29 @@ function fix_date(&$date){
 	$arr=explode('.',$date);
 	$date=$arr[2].'.'.$arr[1].'.'.$arr[0];
 
+}
+function merge_headers($h1,$h2){
+	$n=(count($h1)>count($h2)) ? count($h1) : count($h2);
+	$result=array();
+	for($i=0; $i<$n ;++$i){
+		if(!isset($h1[$i]) or !isset($h2[$i])){
+			if(!isset($h1[$i]))
+				if(!isset($h2[$i]))
+					$result[$i]=false;
+				else
+					$result[$i]=$h2[$i];
+			else $result[$i]=$h1[$i];
+			continue;
+		}
+		if( ($h1[$i]===false) and ($h2[$i]===false)){
+			$result[$i]=false;
+		}elseif(($h1[$i]===false) and ($h2[$i]!==false)){
+			$result[$i]=$h2[$i];
+		}elseif(($h1[$i]!==false) and ($h2[$i]===false)){
+			$result[$i]=$h1[$i];
+		}else{
+			die("Конфликт заголовков таблицы при слиянии $h1[$i] $h2[$i]");
+		}
+	}
+	return $result;
 }

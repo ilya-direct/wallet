@@ -65,7 +65,10 @@ class  mysqli_DB{
 		}
 		if(empty($conditions)) $where='';
 		$sql=$select.$from.$where;
-		return $this->get_record_sql($sql)->$return;
+		if($this->get_record_sql($sql)){
+			return $this->get_record_sql($sql)->$return;
+		}else
+			return false;
 	}
 	public function get_field_sql($sql){
 		$mysql_result=$this->execute_query($sql);;

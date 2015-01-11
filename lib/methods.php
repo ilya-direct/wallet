@@ -1,69 +1,31 @@
 <?php
 
-function item_exists($item){
-	Global $DB;
-	$item=trim($item);
-	return $DB->record_exists('item',array('name'=>$item));
-}
-
-function insert_item($item){
-	Global $DB;
-	$item=trim($item);
-	return $DB->insert_record_sql('insert into item(name) value(\''.$item.'\')');
-}
-
 function get_item_id($item){
 	Global $DB;
 	$item=trim($item);
-	$rec=$DB->get_record_sql('select id from item where item.name=\''.$item.'\'');
-
-	return is_object($rec) ? $rec->id : false;
+	if(empty($item)) return false;
+	$id=$DB->get_field('item','id',array('name'=>$item));
+	if($id===false)
+		$id=$DB->insert_record('item',array('name'=>$item));
+	return $id;
 }
 
-function get_sign_id($sign){
-	if ($sign==='p') return 1;
-		elseif ($sign==='m') return 2;
-	return 3;
-}
-function transaction_exists($sign_id,$sum,$item_id,$date,$tcategory_id){
-	Global $DB;
-	//$sum=(int) $sum;
-	//$sign_id=get_sign_id($sign);
-	//$item_id=item_exists($item) ? get_item_id($item) : insert_item($item);
-	return $DB->record_exists_sql("select * from  record where  signid={$sign_id}
-				and sum={$sum} and itemid={$item_id} and time='{$date}' and tcategory={$tcategory_id} ");
-
-}
-function insert_transaction($sign,$sum,$item,$date,$transaction_category=false){
+function insert_transaction($date,$tcategory,$sum,$item){
 	Global $DB;
 	$sum=(int) $sum;
-	$item=trim($item);
-	$tcategory_id=get_tcategory_id($transaction_category);
-	$sign_id=get_sign_id($sign);
-	if ($sign_id==1 or $sign_id==2) $sum=abs($sum);
-	$item_id=item_exists($item) ? get_item_id($item) : insert_item($item);
-	if (!transaction_exists($sign_id,$sum,$item_id,$date,$tcategory_id))
-		$DB->insert_record_sql("insert into record (signid,sum,itemid,time,tcategory) values({$sign_id},{$sum},{$item_id},'{$date}',$tcategory_id)");
-}
-
-function get_category_id($category_name){
-    global $DB;
-    $category_name=strtolower($category_name);
-    $category_name=trim($category_name);
-    if ($DB->record_exists('category',array('name' => $category_name)))
-        return $DB->get_field('category','id',array('name' => $category_name));
-    else
-        return $DB->insert_record('category',array('name' => $category_name));
-}
-
-
-function get_tcategory_id($tcategory){
-	Global $DB;
-	if($tcategory===false) die("не указана tcategory");
-	$tcategory=trim($tcategory);
-	if(empty($tcategory)) die("не указана tcategory");
-	if($DB->record_exists('transaction_category',array('name' => $tcategory,'deleted'=>0)))
-		return (int)$DB->get_field('transaction_category','id',array('name' => $tcategory,'deleted'=>0));
-	else
-		die("Категории(tcategory) $tcategory не существует в базе данных");
+	$tcategory_id=$DB->get_field('transaction_category','id',array('name' => $tcategory,'deleted'=>0));
+	$sign=$DB->get_field('transaction_category','sign',array('id'=>$tcategory_id));
+	if ($sign==1) $sum=abs($sum);
+	if ($sign==2) $sum=-abs($sum);
+	$item_id=get_item_id($item);
+	list($y,$m,$d)=explode('.',$date);
+	if($sum==0 or !$tcategory_id or !$item_id or !checkdate($m,$d,$y)){
+		echo "\n\nНеверная транзакция\nДата:{$date}\nСумма:{$sum}\nИмя:{$item}\nКатегория:{$tcategory}\n\n";
+		if($sum==0) return;
+		else
+			die();
+	}
+	$params=array( 'sum'=>$sum, 'date'=>$date,'tcategory'=>$tcategory_id,'itemid'=>$item_id);
+	if (!$DB->record_exists('record',$params))
+		$DB->insert_record('record',$params);
 }
