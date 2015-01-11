@@ -1,0 +1,202 @@
+select rec.time,rec.sum,i.name from record rec left join item i on i.id=rec.itemid;
+delete  from  record where id>=1;
+
+select * from  record where  signid=2
+						and sum=108 and itemid=26 and time='2014.11.01';
+show fields from record;
+
+select * from record limit 118,14;
+select * from record ;
+
+
+insert into record(signid,sum,time,itemid) values(1,546,'2014:12:12',24);
+insert into record(signid,sum,time,itemid) values(1,546,'2014.12.5',24);
+insert into record(signid,sum,time,itemid) values(1,546,'2:23:2014',24);
+
+select * from record where itemid=23;
+select * from item where name='Корректировка';
+show fields from item;
+describe item;
+select * from item where id=19;
+delete from record;
+delete from item;
+
+
+ALTER TABLE item auto_increment=1;
+ALTER TABLE record auto_increment=1;
+ALTER TABLE transaction_category auto_increment=1;
+
+delete  from record;
+delete  from item;
+delete from transaction_category;
+
+select * from record; -- where itemid=19;
+select * from item;
+select * from transaction_category;
+select r.*,i.name from record r inner join item i on i.id=r.itemid where i.name='Корректировка';
+
+CREATE TABLE transaction_category (
+	`id` int PRIMARY KEY NOT NULL auto_increment,
+    `name` varchar(15) NOT NULL unique
+)engine='InnoDB';
+
+desc transaction_category;
+desc record;
+alter table record add column tcategory int ;
+
+select * from record;
+
+select * from  transaction_category;
+select `id` from `transaction_category` where  `name`='p_mompm';
+
+select * from record;
+select * from  item;
+
+
+select * from  transaction_category where  name='m_spend_multiple';
+select * from  transaction_category where  name='m_spend_multiple';
+insert into transaction_category (name) value('m_spend_multiple');
+
+select * from transaction_category;
+desc transaction_category;
+
+-- alter table transaction_category modify name varchar(30);
+
+
+delete from record;
+delete from item;
+desc record;
+select * from record;
+alter table record modify tcategory int not null;
+
+
+select distinct id  from transaction_category tc join record r on r. ;
+select distinct tcategory from record r join item i on r.itemid=i.id 
+		join transaction_category tc on tc.id=r.tcategory
+where year(r.time)='2014' and month(r.time)='01' and (tc.name like "p_%" or  tc.name like "m_%");
+select tc.name as 'tcategory',group_concat(i.name  SEPARATOR '|') as 'desc', group_concat(r.sum SEPARATOR '|') as 'sum'
+	from record r join item i on r.itemid=i.id 
+     join transaction_category tc on tc.id=r.tcategory 
+    where year(r.time)='2014' and month(r.time)='01'and day(r.time)='23' group by tcategory;
+select * from item;
+select * from transaction_category;
+select * from record;
+alter table `transaction_category` add column `value` varchar(30);
+-- alter table record drop column category;
+
+
+select sum(r.sum) from record r
+join transaction_category tc on tc.id=r.tcategory 
+    where year(r.time)='2014' and month(r.time)='01' and tc.name='p_mom_multiple';
+
+select * from record r
+join transaction_category tc on tc.id=r.tcategory 
+    where year(r.time)=2014 and month(r.time)=1 and day(r.time)='23';
+    
+select distinct tc.name
+	from record r join item i on r.itemid=i.id
+		join transaction_category tc on tc.id=r.tcategory
+	where year(r.time)='2014' and
+			month(r.time)='01' and
+			(tc.name like 'p_%' or  tc.name like 'm_%');
+            
+select sum(r.sum)
+				from record r join transaction_category tc on tc.id=r.tcategory
+    			where year(r.time)=2014 and month(r.time)=1 and 
+    				day(r.time)=3 and tc.name='p_mompm';
+select group_concat(i.name  SEPARATOR '|') as 'desc',group_concat(r.sum SEPARATOR '|') as 'sum'
+			from record r join item i on r.itemid=i.id
+    			join transaction_category tc on tc.id=r.tcategory
+    		where year(r.time)=2014 and month(r.time)=1 and day(r.time)=23 and tc.name='p_mom_multiple';
+            
+select name from item1  where id<2 limit 5;
+
+desc transaction_category;
+-- alter table transaction_category modify column `name` varchar(30) not null;
+-- alter table transaction_category drop index name;
+select * from transaction_category;
+
+select column_name from (SHOW KEYS FROM transaction_category  WHERE Key_name = 'PRIMARY');
+SHOW KEYS FROM transaction_category; -- WHERE Key_name = 'PRIMARY';
+SELECT column_name
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_SCHEMA = 'wallet'
+   AND TABLE_NAME = 'transaction_category'
+   AND COLUMN_KEY = 'PRI';
+select * from transaction_category;
+desc transaction_category;
+update transaction_category set `sort`=1, `name`='p_mompm' where id=1; 
+
+delete from transaction_category;
+select sum(sum)/12 from record where tcategory=10;
+select * from item;
+delete  from record;
+-- alter table transaction_category add column deleted tinyint not null default 0;
+
+select distinct tc.name
+	from record r join item i on r.itemid=i.id
+		join transaction_category tc on tc.id=r.tcategory
+	where year(r.time)=2014 and
+			month(r.time)=04 and
+			(tc.name like 'p_%' or  tc.name like 'm_%') order by tc.sort;
+select `value` from `transaction_category` where  `name`='date' and `deleted`=0;
+
+select * from record where sum<0;
+
+select   * from record r
+	join transaction_category tc on r.tcategory=tc.id
+    where tc.name like 'm_%';
+update  record r
+	join transaction_category tc on r.tcategory=tc.id
+    set r.sum=-abs(r.sum)
+    where tc.name like 'm_%';
+update  record r
+	join transaction_category tc on r.tcategory=tc.id
+    set r.sum=abs(r.sum)
+    where tc.name like 'p_%';
+select * from  transaction_category 
+    where name like 'm_%';   
+    
+select * from transaction_category;
+select * from item where id=45;
+alter table transaction_category add column sign tinyint(1) default 0;
+
+select * from record;
+select * from card;
+drop table card;
+alter table record drop column cardid;
+
+
+SELECT *
+FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+WHERE TABLE_SCHEMA = 'wallet'
+   AND TABLE_NAME = 'record';
+drop table card;
+select * from record;
+alter table cardcheck drop foreign key fk_cardid_cardcheck;
+   
+show tables from INFORMATION_SCHEMA;
+alter table card   auto_increment=1;
+alter table user drop PRIMARY KEY;
+desc user;
+select * from record;
+alter table user change column `login_1` `login_11` varchar(15);
+alter table user change column `id` `idid` int;
+show tables;
+
+alter table record drop column userid;
+alter table record drop column cardid;
+alter table record drop column signid;
+
+alter table record add constraint  fk_tcategory_record  foreign key (tcategory) references transaction_category(id); 
+alter table record modify column `time` date;
+alter table record change column `time` `date` date;
+
+create table `balance_check` (
+	`id` int PRIMARY KEY not null auto_increment,
+    `date` date,
+	`consider` int not null,
+	`real` int not null,
+	`diff` int not null
+) engine=InnoDB collate='utf8_general_ci';
+desc balance_check;
