@@ -55,9 +55,9 @@ while (false !== ($file_name = readdir($dir_handle))) {
 				if($headers[$i]=='realmoney'){
 					$table='balance_check';
 					$params=array('date'=>$date,
-						'consider'=>array_search('countmoney',$headers),
-						'real'=>$data[$i],
-						'diff'=>array_search('difference',$headers));
+						'consider'=>$data[array_search('countmoney',$headers)],
+						'realmoney'=>$data[$i],
+						'diff'=>$data[array_search('difference',$headers)]);
 					if($DB->record_exists($table,$params)){
 						$DB->update_record($table,$params);
 					}else{
