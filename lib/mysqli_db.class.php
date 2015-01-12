@@ -33,11 +33,21 @@ class  mysqli_DB{
 		if (empty($result)) return false;
 		return $result;
 	}
+	public function get_records($table,array $conditions=array()){
+		$where=$this->conditions_to_sql($conditions);
+		$sql="select * from {$table} where {$where}";
+		return $this-> get_records_sql($sql);
+	}
 	public function get_record_sql($sql){
 		$mysql_result=$this->execute_query($sql);
 		if($mysql_result->num_rows>1) trigger_error("more than one record\n$sql");
 		if($mysql_result->num_rows===0) return false;
 		return $mysql_result->fetch_object();
+	}
+	public function get_record($table,array $conditions=array()){
+		$where=$this->conditions_to_sql($conditions);
+		$sql="select * from {$table} where {$where}";
+		return $this->get_record_sql($sql);
 	}
 	public function record_exists_sql($sql){
 		$mysql_result=$this->execute_query($sql);
