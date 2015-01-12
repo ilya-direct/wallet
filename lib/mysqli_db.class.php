@@ -34,8 +34,9 @@ class  mysqli_DB{
 		return $result;
 	}
 	public function get_records($table,array $conditions=array()){
-		$where=$this->conditions_to_sql($conditions);
-		$sql="select * from {$table} where {$where}";
+		$conditions=$this->conditions_to_sql($conditions);
+		if(empty($conditions)) $where=''; else $where='where ';
+		$sql="select * from {$table} {$where} {$conditions}";
 		return $this-> get_records_sql($sql);
 	}
 	public function get_record_sql($sql){

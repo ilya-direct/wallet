@@ -1,13 +1,13 @@
 <?php
 
 require_once('../lib/mysqli_db.class.php');
-
-$point_1=$DB->get_record('balance_check',array('date'=>'2013-12-31'));
-$total_sum=$point_1->realmoney;
+$DB=new mysqli_DB();
 
 $points=$DB->get_records('balance_check');
+$point_1=array_shift($points);
+$total_sum=$point_1->realmoney;
 foreach($points as $point_2){
-	$sum=$DB->get_field_sql('select sum(r.sum) from record where date>'.$point_1->date.' and date<='.$point_2->date);
+	$sum=$DB->get_field_sql('select sum(sum) from record where date>"'.$point_1->date.'" and date<="'.$point_2->date.'"');
 	$total_sum+=$sum;
 
 	if (preg_match('/^([\d]{4})\-([\d]{2})-([\d]{2})/',$point_2->date,$matches)){

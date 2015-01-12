@@ -10,7 +10,7 @@ if (!$dir_handle) die("Не удалось открыть дерикторию!"
 
 while (false !== ($file_name = readdir($dir_handle))) {
 	echo "$file_name";
-	if (!preg_match('/^([\d]{4})\.([\d]{2})/',$file_name,$matches)){
+	if (!preg_match('/^([\d]{4})\.([\d]{2})\.csv$/',$file_name,$matches)){
 		echo "\n";
 		continue;
 	}
