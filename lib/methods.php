@@ -28,4 +28,6 @@ function insert_transaction($date,$tcategory,$sum,$item){
 	$params=array( 'sum'=>$sum, 'date'=>$date,'tcategory'=>$tcategory_id,'itemid'=>$item_id);
 	if (!$DB->record_exists('record',$params))
 		$DB->insert_record('record',$params);
+	else
+		$DB->update_record('record',$params);
 }

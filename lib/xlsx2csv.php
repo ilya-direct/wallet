@@ -1,8 +1,9 @@
 <?php
 require('./PHPExcel/PHPExcel.php');
-$objPHPExcel = PHPExcel_IOFactory::load("../finance_xlsx/01.2014.xlsx");
+$fname="../finance_xlsx/2014.01_temp";
+$objPHPExcel = PHPExcel_IOFactory::load($fname.".xlsx");
 $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'CSV');
 $objWriter->setDelimiter(";");
 $objWriter->setEnclosure("");
-$objWriter->setPreCalculateFormulas(false);
-$objWriter->save('01.2014.csv');
+//$objWriter->setPreCalculateFormulas(false);
+$objWriter->save($fname."_out.csv");
