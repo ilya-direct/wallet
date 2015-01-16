@@ -1153,7 +1153,18 @@ class PHPExcel_Calculation_MathTrig {
 	 */
 	public static function COUNTPARTS() {
 		// Return value
-		$returnValue = 121;
+		$returnValue = 0;
+
+		foreach (PHPExcel_Calculation_Functions::flattenArray(func_get_args()) as $arg) {
+			// Is it a numeric value?
+			$parts=explode('|',$arg);
+			foreach($parts as $p){
+				if ((is_numeric($p)) && (!is_string($p))) {
+					$returnValue += $p;
+				}
+			}
+		}
+
 		// Return
 		return $returnValue;
 	} //    function COUNTPARTS()
