@@ -5856,6 +5856,7 @@ class PHPExcel_Reader_Excel5 extends PHPExcel_Reader_Abstract implements PHPExce
 			case 365: $function = 'VARPA';			break;
 			case 366: $function = 'STDEVA';			break;
 			case 367: $function = 'VARA';			break;
+			case 369: $function = 'COUNTPARTS';	break;
 			default:
 				throw new PHPExcel_Reader_Exception('Unrecognized function in formula');
 				break;

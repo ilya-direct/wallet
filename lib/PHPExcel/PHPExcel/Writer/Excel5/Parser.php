@@ -502,6 +502,7 @@ class PHPExcel_Writer_Excel5_Parser
 			  'STDEVA'          => array( 366,   -1,    0,    0 ),
 			  'VARA'            => array( 367,   -1,    0,    0 ),
 			  'BAHTTEXT'        => array( 368,    1,    0,    0 ),
+			  'COUNTPARTS'     => array( 369,   -1,    0,    0 ),
 			  );
 	}
 

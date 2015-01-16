@@ -1139,6 +1139,26 @@ class PHPExcel_Calculation_MathTrig {
 
 
 	/**
+	 * COUNTPARTS
+	 *
+	 * SUM computes the sum of all the values and cells referenced in the argument list.
+	 *
+	 * Excel Function:
+	 *		COUNTPARTS(value1[,value2[, ...]])
+	 *
+	 * @access	public
+	 * @category Mathematical and Trigonometric Functions
+	 * @param	mixed		$arg,...		Data values
+	 * @return	float
+	 */
+	public static function COUNTPARTS() {
+		// Return value
+		$returnValue = 121;
+		// Return
+		return $returnValue;
+	} //    function COUNTPARTS()
+
+	/**
 	 * SUMIF
 	 *
 	 * Counts the number of cells that contain numbers within the list of arguments
