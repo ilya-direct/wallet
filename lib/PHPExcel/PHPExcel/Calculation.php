@@ -1507,7 +1507,7 @@ class PHPExcel_Calculation {
 												),
 				'COUNTPARTS'			=> array('category'			=>	PHPExcel_Calculation_Function::CATEGORY_MATH_AND_TRIG,
 												'functionCall'		=>	'PHPExcel_Calculation_MathTrig::COUNTPARTS',
-												'argumentCount'	=>	'1+'
+												'argumentCount'	=>	'1'
 												),
 				'SUMIF'					=> array('category'			=>	PHPExcel_Calculation_Function::CATEGORY_MATH_AND_TRIG,
 												 'functionCall'		=>	'PHPExcel_Calculation_MathTrig::SUMIF',

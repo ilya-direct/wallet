@@ -434,7 +434,7 @@ class PHPExcel_Style_NumberFormat extends PHPExcel_Style_Supervisor implements P
 	private static function _formatAsDate(&$value, &$format)
 	{
 		// dvc: convert Excel formats to PHP date formats
-
+		if($format=='mm-dd-yy') $format='dd.mm.yyyy'; // my correction
 		// strip off first part containing e.g. [$-F800] or [$USD-409]
 		// general syntax: [$<Currency string>-<language info>]
 		// language info is in hexadecimal

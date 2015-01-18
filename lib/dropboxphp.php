@@ -50,7 +50,7 @@ $finances=$client->getMetadataWithChildren('/finances')['contents'];
 
 foreach($finances as $file){
 	$file_name=preg_replace('/.*\//','',$file['path']);
-	$file_name_without_ext=preg_replace('/\..{3,4}$/','',$file_name);
+	$file_name_without_ext=preg_replace('/\..{4}$/','',$file_name);
 	if (!preg_match('/^([\d]{4})\.([\d]{2})$/',$file_name_without_ext,$matches)){
 		echo "$file_name false\n";
 		continue;
@@ -63,7 +63,7 @@ foreach($finances as $file){
 		if($time_modified>$download_info->downloadtime){
 			$download_info->downloadtime=$time_modified;
 			$download_info->in_db=0;
-			if(!is_null($client->getFile($file['path'],fopen('../finance_xlsx/'.$file_name,'wb')))){
+			if(!is_null($client->getFile($file['path'],fopen('../finance_xlsm/'.$file_name,'wb')))){
 				$DB->update_record('dbx_download',$download_info);
 				echo "$file_name updated\n";
 			}
@@ -76,7 +76,7 @@ foreach($finances as $file){
 		$download_info->fname="{$y}.{$m}";
 		$download_info->downloadtime=$time_modified;
 		$download_info->in_db=0;
-		if(!is_null($client->getFile($file['path'],fopen('../finance_xlsx/'.$file_name,'wb')))){
+		if(!is_null($client->getFile($file['path'],fopen('../finance_xlsm/'.$file_name,'wb')))){
 			$DB->insert_record('dbx_download',$download_info);
 			echo "$file_name downloaded\n";
 		}

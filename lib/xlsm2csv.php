@@ -1,7 +1,7 @@
 <?php
 require('./PHPExcel/PHPExcel.php');
-$fname="../finance_xlsx/2014.01_temp";
-$objPHPExcel = PHPExcel_IOFactory::load($fname.".xlsx");
+$fname="../finance_xlsm/2014.01.xlsm";
+$objPHPExcel = PHPExcel_IOFactory::load($fname);
 $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'CSV');
 $objWriter->setDelimiter(";");
 $objWriter->setEnclosure("");

@@ -1151,15 +1151,17 @@ class PHPExcel_Calculation_MathTrig {
 	 * @param	mixed		$arg,...		Data values
 	 * @return	float
 	 */
-	public static function COUNTPARTS() {
+	public static function COUNTPARTS($arg) {
+		$cells=PHPExcel_Calculation_Functions::flattenArray($arg);
 		// Return value
 		$returnValue = 0;
 
-		foreach (PHPExcel_Calculation_Functions::flattenArray(func_get_args()) as $arg) {
+		foreach ($cells as $cell) {
+			if(is_null($cell)) continue;
 			// Is it a numeric value?
-			$parts=explode('|',$arg);
+			$parts=explode('|',$cell);
 			foreach($parts as $p){
-				if ((is_numeric($p)) && (!is_string($p))) {
+				if ((is_numeric($p))) {
 					$returnValue += $p;
 				}
 			}
