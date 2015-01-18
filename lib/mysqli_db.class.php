@@ -3,7 +3,7 @@
 class  mysqli_DB{
 	public $DB;
 	private $db_name;
-	function mysqli_DB($host='localhost',$username='root',$password='',$db_name='wallet',$port=3306){
+	function mysqli_DB($host='localhost',$username='root',$password='root',$db_name='wallet',$port=3306){
 		$this->db_name=$db_name;
 		$this->DB=new mysqli($host,$username,$password,$this->db_name,$port);
 		/* проверяем соединение */
