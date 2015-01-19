@@ -58,13 +58,14 @@ foreach($finances as $file){
 	$y=$matches[1];
 	$m=$matches[2];
 	$time_modified=dbx\Client::parseDateTime($file['modified'])->format("Y-m-d H:i:s");
-	$download_info=$DB->get_record('dbx_download',array('fname'=>"{$y}.{$m}"));
+	$download_info=$DB->get_record('dbx_finance',array("year"=>$y,"month"=>$m));
 	if($download_info){
 		if($time_modified>$download_info->downloadtime){
 			$download_info->downloadtime=$time_modified;
 			$download_info->in_db=0;
+			$download_info->csv_converted=0;
 			if(!is_null($client->getFile($file['path'],fopen('../finance_xlsm/'.$file_name,'wb')))){
-				$DB->update_record('dbx_download',$download_info);
+				$DB->update_record('dbx_finance',$download_info);
 				echo "$file_name updated\n";
 			}
 		}else{
@@ -73,11 +74,11 @@ foreach($finances as $file){
 		}
 	}else{
 		$download_info=new stdClass();
-		$download_info->fname="{$y}.{$m}";
 		$download_info->downloadtime=$time_modified;
-		$download_info->in_db=0;
+		$download_info->year=$y;
+		$download_info->month=$m;
 		if(!is_null($client->getFile($file['path'],fopen('../finance_xlsm/'.$file_name,'wb')))){
-			$DB->insert_record('dbx_download',$download_info);
+			$DB->insert_record('dbx_finance',$download_info);
 			echo "$file_name downloaded\n";
 		}
 	}

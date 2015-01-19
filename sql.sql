@@ -200,3 +200,13 @@ create table `balance_check` (
 	`diff` int not null
 ) engine=InnoDB collate='utf8_general_ci';
 desc balance_check;
+
+create table `dbx_finance` (
+	`id` int primary key auto_increment,
+	`month` tinyint not null,
+	`year` smallint unsigned not null,
+	`downloadtime` datetime,
+	`csv_converted`  tinyint not null default 0,
+	`in_db` tinyint not null default 0,
+	UNIQUE KEY (`month`, `year`)
+);
