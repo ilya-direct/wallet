@@ -50,7 +50,7 @@ $finances=$client->getMetadataWithChildren('/finances')['contents'];
 
 foreach($finances as $file){
 	$file_name=preg_replace('/.*\//','',$file['path']);
-	$file_name_without_ext=preg_replace('/\..{4}$/','',$file_name);
+	$file_name_without_ext=preg_replace('/\.xlsm$/','',$file_name);
 	if (!preg_match('/^([\d]{4})\.([\d]{2})$/',$file_name_without_ext,$matches)){
 		echo "$file_name false\n";
 		continue;
