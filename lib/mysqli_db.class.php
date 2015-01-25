@@ -141,6 +141,13 @@ class  mysqli_DB{
 			$this->execute_query("update {$table} set {$set} where {$where}");
 		}
 	}
+	public function set_field($table,$field,$value,$conditions){
+		//$where=$this->conditions_to_sql($conditions);
+		$obj=$this->get_record($table,$conditions);
+		if($obj===false) return false;
+		$obj->$field=$value;
+		$this->update_record($table,$obj);
+	}
 	public function get_field_info($sql){
 		/* Получим информацию обо всех столбцах */
 		//$finfo = $mysqli_result->fetch_fields();

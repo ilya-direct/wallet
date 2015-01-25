@@ -24,8 +24,8 @@ delete from item;
 
 ALTER TABLE item auto_increment=1;
 ALTER TABLE record auto_increment=1;
-ALTER TABLE transaction_category auto_increment=1;
-
+ALTER TABLE transaction_category auto_increment=18;
+select * from transaction_category;
 delete  from record;
 delete  from item;
 delete from transaction_category;
@@ -200,6 +200,40 @@ create table `balance_check` (
 	`diff` int not null
 ) engine=InnoDB collate='utf8_general_ci';
 desc balance_check;
+
+desc record;
+select * from transaction_category;
+select * from balance_check;
+delete  from balance_check;
+insert into balance_check (`date`,consider,`real`,diff) values('2014.01.31',18728,12605,-6123);
+alter table balance_check change `real` `realmoney` int;
+
+select r.sum from record r left join transaction_category tc on tc.id=r.tcategory 
+	where tc.name='correcting' and year(r.`date`)=2014 and month(r.date)=1;
+select sum(sum) from record where date>"2013-12-31" and date<="2013-12-31";
+alter table balance_check modify column `date` date unique;
+desc balance_check;
+select * from record;
+delete from record;
+create table dbx_download (
+	id int not null PRIMARY KEY AUTO_INCREMENT,
+    fname varchar(6) unique,
+    downloadtime datetime,
+    in_db tinyint DEFAULT 0
+);
+desc dbx_download;
+alter table dbx_download modify column fname varchar(7) not null;
+select * from dbx_download;
+
+show tables;
+drop table record;
+drop database test;
+create database test;
+use test;
+show tables;
+show grants;
+
+
 
 create table `dbx_finance` (
 	`id` int primary key auto_increment,
