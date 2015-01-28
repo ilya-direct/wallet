@@ -96,7 +96,6 @@ class  mysqli_DB{
 	}
 	public function get_fieldset_sql($sql){
 		$mysql_result=$this->execute_query($sql);
-		if ($mysql_result->num_rows==0) return false;
 		if ($mysql_result->field_count>1) trigger_error("more than one field returned",E_USER_ERROR);
 		$field_name=$mysql_result->fetch_field()->name;
 		$result_array=array();
@@ -152,6 +151,9 @@ class  mysqli_DB{
 		/* Получим информацию обо всех столбцах */
 		//$finfo = $mysqli_result->fetch_fields();
 		//var_dump($finfo);
+	}
+	public function delete_record_sql($sql){
+		$this->execute_query($sql);
 	}
 	private function conditions_to_sql($conds,$separator='and'){
 		$str='';

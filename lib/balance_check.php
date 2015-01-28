@@ -2,6 +2,10 @@
 
 require_once('../lib/mysqli_db.class.php');
 $DB=new mysqli_DB();
+$init_params=array('date'=>'2013-12-31','realmoney'=>15114,'consider'=>15114,'diff'=>0);
+if(!$DB->record_exists('balance_check',$init_params)){
+	$DB->insert_record('balance_check',$init_params);
+}
 
 $points=$DB->get_records('balance_check');
 $point_1=array_shift($points);
