@@ -53,7 +53,14 @@ if($recs)
 			$date="{$rec->year}.{$rec->month}.{$current_day}";
 			array_to_utf8($data);
 			for($i=0;$i<count($headers);$i++){
-				if ($headers[$i]===false or empty(trim($data[$i]))) continue;
+				$data[$i]=trim($data[$i]);
+				if(empty($data[$i])){
+					if($headers[$i]!==false){
+						delete_records($date,$headers[$i]);
+					}
+					continue;
+				}
+				if ($headers[$i]===false) continue;
 				$header_parts=explode('_',$headers[$i]);
 				if (count($header_parts)==1){
 					if($headers[$i]=='realmoney'){
