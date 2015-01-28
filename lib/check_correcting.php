@@ -6,9 +6,15 @@ $DB=new mysqli_DB();
 $y=2014;
 $m=1;
 
-for($y=2014;;$y++){
-	for($m=1;$m<=12;$m++){
-		if(((int)date('Y'))==$y and ((int)date('m'))==$m) die("\nfinished at $y.$m");
+$start_year=2014;
+$start_month=1;
+$current_year=(int)date('Y');
+$current_month=(int)date('m');
+
+for($i=$start_year;$i<=$current_year;$i++){
+	$j=($i==$start_year)? $start_month : 1;
+	$jmax=($i==$current_year)? $current_month : 12;
+	for(;$j<$jmax;$j++){
 		$maxday=date('d',mktime(0,0,0,$m+1,0,$y));
 		$balance_check_diff=$DB->get_field('balance_check','diff',array('date'=>"{$y}.{$m}.{$maxday}"));
 		$correcting=$DB->get_record_sql("
@@ -22,3 +28,5 @@ for($y=2014;;$y++){
 		}
 	}
 }
+$i--;
+echo("finished at ".$current_year.' '.$jmax."\n");

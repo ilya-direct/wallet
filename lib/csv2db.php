@@ -4,25 +4,27 @@ require_once('../lib/mysqli_db.class.php');
 require_once('../lib/methods.php');
 
 $DB=new mysqli_DB();
-$dir_path='c:/wamp/www/wallet/finance_csv/';
-$dir_handle=opendir($dir_path);
-if (!$dir_handle) die("Не удалось открыть дерикторию!");
 
-while (false !== ($file_name = readdir($dir_handle))) {
-	echo "$file_name";
-	if (!preg_match('/^([\d]{4})\.([\d]{2})\.csv$/',$file_name,$matches)){
-		echo "\n";
+$input_path='../finance_csv/';
+if(!is_dir($input_path)){ die(__FILE__.'can\'t find input directory'); }
+$input_path=realpath($input_path);
+
+$recs=$DB->get_records('dbx_finance',array('exists'=>1,'csv_converted'=>1,'in_db'=>0));
+if(!$recs) return;
+foreach($recs as $rec){
+	$file_name=$rec->year.'.'.$rec->month;
+	$input_filepath=($input_path.'/'.$file_name.'.csv');
+	if(!file_exists($input_filepath)){
+		$DB->set_field('dbx_finance','exists',0,array('id'=>$rec->id));
+		echo "file $input_filepath not found\n";
 		continue;
 	}
-	$year=$matches[1];
-	$month =$matches[2];
-	unset($matches);
-
-	echo "($year $month)\n";
-
-	$file_path=$dir_path.$file_name;
-	$file_handle=fopen($file_path,'r');
-	if(!$file_handle) die("Не удалось открыть файл $file_name в дериктории $dir_path!");
+	$file_handle=fopen($input_filepath,'r');
+	if(!$file_handle) {
+		echo("Не удалось открыть файл $input_filepath!");
+		continue;
+	}
+	//$DB->delete_records_sql("delete from record where year(`date`)={$rec->year} and month(`date`)={$rec->month}");
 	$headers_1=get_table_headers($file_handle,"ТС по расчету");
 
 	if ($headers_1===false) die("Строка с корректировкой баланса не найдена");
@@ -39,14 +41,16 @@ while (false !== ($file_name = readdir($dir_handle))) {
 	$date_index=array_search('date',$headers);
 	if ($date_index===false) die('В заголовках нет даты!');
 
-	$maxday=date('d',mktime(0,0,0,$month+1,0,$year));
+	$maxday=date('d',mktime(0,0,0,$rec->month+1,0,$rec->year));
 
 	for($current_day=1;$current_day<=$maxday;$current_day++){
 		$data=fgetcsv($file_handle,null,';');
 		$date=$data[$date_index];
 		if(!preg_match('/^([\d]{2})\.([\d]{2})\.([\d]{4})$/',$date,$matches)) continue;
-		if($matches[1]!=$current_day || $matches[2]!=$month || $matches[3]!=$year) die('Дата не совпадает с ожидаемой');
-		$date="{$year}.{$month}.{$current_day}";
+		if($matches[1]!=$current_day || $matches[2]!=$rec->month || $matches[3]!=$rec->year) {
+				die('Дата '.$date.' не совпадает с ожидаемой в файле '.$input_filepath);
+		}
+		$date="{$rec->year}.{$rec->month}.{$current_day}";
 		array_to_utf8($data);
 		for($i=0;$i<count($headers);$i++){
 			if ($headers[$i]===false or empty(trim($data[$i]))) continue;
@@ -80,7 +84,7 @@ while (false !== ($file_name = readdir($dir_handle))) {
 				}
 			}elseif(count($header_parts)===2){
 				$item=$DB->get_field('transaction_category','value',array('name'=>$headers[$i],'deleted'=>0));
-				insert_transaction($date,$headers[$i],$data[$i],$item);
+				insert_transaction_single($date,$headers[$i],$data[$i],$item);
 			}
 		}
 	}
@@ -97,7 +101,7 @@ while (false !== ($file_name = readdir($dir_handle))) {
 		if(in_array($data[$date_index],$flags)){
 			$total_flag=$total_flag | array_search($data[$date_index],$flags);
 			if($data[$date_index]=='Корректировка')
-				insert_transaction("$year.$month.$maxday",'correcting',$data[$date_index+1],$data[$date_index]);
+				insert_transaction("$rec->year.$rec->month.$maxday",'correcting',$data[$date_index+1],$data[$date_index]);
 		}
 	}
 	foreach($flags as $flag => $value){
@@ -109,9 +113,8 @@ while (false !== ($file_name = readdir($dir_handle))) {
 	}
 	echo " ok! \n";
 	fclose($file_handle);
-
+	$DB->set_field('dbx_finance','in_db',1,array('id'=>$rec->id));
 }
-
 echo "finished\n";
 
 function get_table_headers(&$handle,$needle){
