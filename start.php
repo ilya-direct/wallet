@@ -17,4 +17,13 @@ $file=fopen(__DIR__.'/records.log','ab+');
 fwrite($file,date('Y-m-d H:i:s').' '.__FILE__.' '.$time);
 $log=ob_get_clean();
 fwrite($file,$log);
+
+require_once __DIR__.'/lib/dropbox-sdk/lib/dropbox/autoload.php';
+use \Dropbox as dbx;
+
+$token='OprJKfb4QroAAAAAAAAAG0gfCQ7Rz-Wrg67U2dBrYQbxLx-iXwW_kvEMssAv-yay';
+$client=new  dbx\Client($token,'directapp','UTF-8');
+
+$client->uploadFile('/records.log',dbx\WriteMode::force(), $file);
+
 fclose($file);
