@@ -3,7 +3,6 @@ require_once('../lib/mysqli_db.class.php');
 $DB=new mysqli_DB();
 
 $fields=array(
-	'Дата' => array('name'=>'date','sort'=>1),
 	'Мама'=>array('name'=>'p_mom_multiple','sort'=>2),
 	'Мама (PM)'=>array('name'=>'p_mompm','sort'=>3),
 	'Ученики'=> array('name'=>'p_pupils','sort'=>4),
@@ -17,9 +16,6 @@ $fields=array(
 	'Гулянки'=> array('name'=>'m_spend_multiple','sort'=>11),
 	'Другие расходы'=> array('name'=>'m_other_multiple','sort'=>12),
 	'Корректировка'=>array('name'=>'correcting','sort'=>13),
-	'ТС по расчету'=>array('name'=>'countmoney','sort'=>14),
-	'ТС по деньгам'=>array('name'=>'realmoney','sort'=>15),
-	'Разница'=>array('name'=>'difference','sort'=>16)
 );
 
 foreach($fields as $value => $params){

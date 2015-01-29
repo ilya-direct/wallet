@@ -233,14 +233,51 @@ use test;
 show tables;
 show grants;
 
-
-
+select * from dbx_finance;
+delete from dbx_finance;
+select * from dbx_finance where  `year`=2014 and `month`=1;
+drop table dbx_finance;
+select * from category;
+desc dbx_download;
 create table `dbx_finance` (
 	`id` int primary key auto_increment,
-	`month` tinyint not null,
-	`year` smallint unsigned not null,
-	`downloadtime` datetime,
+	`month` tinyint(2) zerofill not null,
+	`year` year not null,
+    `file_name` varchar(20) default null,
+	`download_time` datetime default '0000-00-00 00:00:00',
+    `exists` tinyint not null default 0,
 	`csv_converted`  tinyint not null default 0,
 	`in_db` tinyint not null default 0,
 	UNIQUE KEY (`month`, `year`)
 );
+delete from record;
+
+select * from record ;
+select * from item where id in (417,419);
+select * from transaction_category;
+alter table transaction_category drop column sign;
+alter table transaction_category change column sign2 sign char(1);
+update transaction_category set sign2='-' where sign=2;
+update  dbx_finance set in_db=0;
+select * from item;
+select * from balance_check;
+alter table record auto_increment=1;
+select * from dbx_finance;
+select * from transaction_category where id in (2,3,4,5,6,7,8,10,11,12,13,14);
+select distinct tcategory from record;
+delete from record where tcategory=1;
+
+select * from  cardcheck;
+desc cardcheck;
+drop table category;
+SELECT *
+FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+WHERE TABLE_SCHEMA = 'wallet'
+   AND TABLE_NAME = 'item';
+alter table item drop foreign key fk_categoryid_item;
+alter table item drop column categoryid;
+delete from record;
+delete from item;
+delete from balance_check;
+delete from dbx_finance;
+delete from transaction_category;

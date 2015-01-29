@@ -24,7 +24,6 @@ if($recs)
 			echo("Не удалось открыть файл $input_filepath!");
 			continue;
 		}
-		//$DB->delete_records_sql("delete from record where year(`date`)={$rec->year} and month(`date`)={$rec->month}");
 		$headers_1=get_table_headers($file_handle,"ТС по расчету");
 
 		if ($headers_1===false) die("Строка с корректировкой баланса не найдена");
@@ -53,17 +52,15 @@ if($recs)
 			$date="{$rec->year}.{$rec->month}.{$current_day}";
 			array_to_utf8($data);
 			for($i=0;$i<count($headers);$i++){
-				$data[$i]=trim($data[$i]);
-				if(empty($data[$i])){
-					if($headers[$i]!==false){
-						delete_records($date,$headers[$i]);
-					}
-					continue;
-				}
 				if ($headers[$i]===false) continue;
+				$data[$i]=trim($data[$i]);
 				$header_parts=explode('_',$headers[$i]);
 				if (count($header_parts)==1){
 					if($headers[$i]=='realmoney'){
+						if(empty($data[$i])){
+							$DB->delete_record_sql("delete from balance_check where date='$date'");
+							continue;
+						}
 						$table='balance_check';
 						$params=array('date'=>$date,
 							'consider'=>$data[array_search('countmoney',$headers)],
@@ -76,6 +73,10 @@ if($recs)
 						}
 						unset($table); unset($params);
 					}
+					continue;
+				}
+				if(empty($data[$i])){
+					delete_transactions($date,$headers[$i]);
 					continue;
 				}
 				$sign=$header_parts[0];
@@ -113,8 +114,9 @@ if($recs)
 			to_utf8($data[$date_index]);
 			if(in_array($data[$date_index],$flags)){
 				$total_flag=$total_flag | array_search($data[$date_index],$flags);
-				if($data[$date_index]=='Корректировка')
-					insert_transaction_single("$rec->year.$rec->month.$maxday",'correcting',$data[$date_index+1],$data[$date_index]);
+				$max_date="$rec->year.$rec->month.$maxday";
+				if($data[$date_index]=='Корректировка' && ($max_date<date("Y.m.d")))
+					insert_transaction_single($max_date,'correcting',$data[$date_index+1],$data[$date_index],true);
 			}
 		}
 		foreach($flags as $flag => $value){
@@ -124,6 +126,7 @@ if($recs)
 				echo "$value : false \n";
 			}
 		}
+		if (!($total_flag & 0b00001)) die('Отсутствуют данные о корректировке '."$rec->year-$rec->month-$maxday");
 		echo " ok! \n";
 		fclose($file_handle);
 		$DB->set_field('dbx_finance','in_db',1,array('id'=>$rec->id));
@@ -148,23 +151,32 @@ function get_table_headers(&$handle,$needle){
 function fix_headers(&$headers){
 	Global $DB;
 	for($i=0; $i<count($headers); $i++){
-		if(!$DB->record_exists('transaction_category',array('value'=>$headers[$i]))){
-			$headers[$i]=false;
-			continue;
-		}
-		$field_name=$DB->get_field('transaction_category','name',array('value'=>$headers[$i]));
-		$field_array=explode('_',$field_name);
-		if(count($field_array)<=2){
-			$headers[$i]=$field_name;
-			continue;
-		}elseif(count($field_array)===3 && $field_array[2]=='multiple'){
-			$headers[$i]=$field_name;
-			if(!array_key_exists($i+1,$headers) || $headers[$i+1]!="") {
-				die('Неверный формат колонок (формат заголовка таблицы)');
+		if($DB->record_exists('transaction_category',array('value'=>$headers[$i]))){
+			$field_name=$DB->get_field('transaction_category','name',array('value'=>$headers[$i]));
+			$field_array=explode('_',$field_name);
+			if(count($field_array)<=2){
+				$headers[$i]=$field_name;
+				continue;
+			}elseif(count($field_array)===3 && $field_array[2]=='multiple'){
+				$headers[$i]=$field_name;
+				if(!array_key_exists($i+1,$headers) || $headers[$i+1]!="") {
+					die('Неверный формат колонок (формат заголовка таблицы)');
+				}
+				$headers[++$i]=$field_array[0].'_'.$field_array[1].'_'.'desc';
+				continue;
 			}
-			$headers[++$i]=$field_array[0].'_'.$field_array[1].'_'.'desc';
+		}
+		$add_th=[
+			'Дата' => 'date',
+			'ТС по расчету'=>'countmoney',
+			'ТС по деньгам'=>'realmoney',
+			'Разница'=>'difference'
+		];
+		if(array_key_exists($headers[$i],$add_th)){
+			$headers[$i]=$add_th[$headers[$i]];
 			continue;
 		}
+
 		$headers[$i]=false;
 	}
 

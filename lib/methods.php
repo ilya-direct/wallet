@@ -51,7 +51,7 @@ function insert_transaction_multiple($date,$tcategory,$entries){
 	}
 }
 
-function insert_transaction_single($date,$tcategory,$sum,$item){
+function insert_transaction_single($date,$tcategory,$sum,$item,$with_zero_sum=false){
 	Global $DB;
 	$sum=(int) $sum;
 	$tcategory_id=$DB->get_field('transaction_category','id',array('name' => $tcategory,'deleted'=>0));
@@ -60,15 +60,22 @@ function insert_transaction_single($date,$tcategory,$sum,$item){
 	if ($sign=='-') $sum=-abs($sum);
 	$item_id=get_item_id($item);
 	list($y,$m,$d)=explode('.',$date);
-	if($sum==0 or !$tcategory_id or !$item_id or !checkdate($m,$d,$y)){
+	if((!$with_zero_sum && $sum==0) or !$tcategory_id or !$item_id or !checkdate($m,$d,$y)){
 		echo "\n\nНеверная транзакция\nДата:{$date}\nСумма:{$sum}\nИмя:{$item}\nКатегория:{$tcategory}\n\n";
-		if($sum==0) return;
-		else
-			die();
+		die();
 	}
 	$params=array( 'sum'=>$sum, 'date'=>$date,'tcategory'=>$tcategory_id,'itemid'=>$item_id);
 	if (!$DB->record_exists('record',$params))
 		$DB->insert_record('record',$params);
 	else
 		$DB->update_record('record',$params);
+}
+
+function delete_transactions($date,$tcategory){
+	Global $DB;
+	$tcategory_id=$DB->get_field('transaction_category','id',array('name' => $tcategory,'deleted'=>0));
+	$tc_ids=$DB->get_fieldset_sql("select distinct tcategory from record where date='$date'");
+	if(in_array($tcategory_id,$tc_ids)){
+		$DB->delete_record_sql("delete from record where tcategory='$tcategory_id' and date='$date'");
+	}
 }
