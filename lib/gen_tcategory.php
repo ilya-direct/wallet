@@ -1,5 +1,5 @@
 <?php
-require_once('../lib/mysqli_db.class.php');
+require_once(__DIR__.'/../lib/mysqli_db.class.php');
 $DB=new mysqli_DB();
 
 $fields=array(
@@ -20,10 +20,8 @@ $fields=array(
 
 foreach($fields as $value => $params){
 	if(preg_match('/^([pm])_/',$params['name'],$matches)){
-		$params['sign']=($matches[1]=='p') ? 1 : 2;
+		$params['sign']=($matches[1]=='p') ? '+' : '-';
 		unset($matches);
-	}else{
-		$params['sign']=0;
 	}
 	if($DB->record_exists('transaction_category',array('value'=>$value))){
 		$id=$DB->get_field('transaction_category','id',array('value'=>$value));

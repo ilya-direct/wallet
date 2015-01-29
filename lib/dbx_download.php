@@ -1,5 +1,5 @@
 <?php
-require_once('../lib/mysqli_db.class.php');
+require_once(__DIR__.'/mysqli_db.class.php');
 $DB=new mysqli_DB();
 require_once __DIR__.'/dropbox-sdk/lib/dropbox/autoload.php';
 use \Dropbox as dbx;
@@ -7,7 +7,7 @@ use \Dropbox as dbx;
 $token='OprJKfb4QroAAAAAAAAAG0gfCQ7Rz-Wrg67U2dBrYQbxLx-iXwW_kvEMssAv-yay';
 $client=new  dbx\Client($token,'directapp','UTF-8');
 $finances=$client->getMetadataWithChildren('/finances')['contents'];
-$relative_path='../finance_download/';
+$relative_path=__DIR__.'/../finance_download/';
 if(!is_dir($relative_path)){
 	if(!mkdir($relative_path,0777,true)) die('can\'t create directory');
 }
@@ -41,7 +41,7 @@ foreach($finances as $file){
 			echo "$file_name downloaded\n";
 		}
 		else{
-			echo "$file_name not touched\n";
+			//echo "$file_name not touched\n";
 			continue;
 		}
 	}

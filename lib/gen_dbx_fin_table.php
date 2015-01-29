@@ -1,5 +1,5 @@
 <?php
-require_once('../lib/mysqli_db.class.php');
+require_once(__DIR__.'/mysqli_db.class.php');
 $DB=new mysqli_DB();
 $start_year=2014;
 $start_month=1;

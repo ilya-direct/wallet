@@ -1,11 +1,11 @@
 <?php
 
-require_once('../lib/mysqli_db.class.php');
-require_once('../lib/methods.php');
+require_once(__DIR__.'/mysqli_db.class.php');
+require_once(__DIR__.'/methods.php');
 
 $DB=new mysqli_DB();
 
-$input_path='../finance_csv/';
+$input_path=__DIR__.'/../finance_csv/';
 if(!is_dir($input_path)){ die(__FILE__.'can\'t find input directory'); }
 $input_path=realpath($input_path);
 
@@ -119,6 +119,7 @@ if($recs)
 					insert_transaction_single($max_date,'correcting',$data[$date_index+1],$data[$date_index],true);
 			}
 		}
+		/*
 		foreach($flags as $flag => $value){
 			if ($total_flag & $flag){
 				echo "$value : ok \n";
@@ -126,13 +127,14 @@ if($recs)
 				echo "$value : false \n";
 			}
 		}
+		*/
 		if (!($total_flag & 0b00001)) die('Отсутствуют данные о корректировке '."$rec->year-$rec->month-$maxday");
-		echo " ok! \n";
+
 		fclose($file_handle);
 		$DB->set_field('dbx_finance','in_db',1,array('id'=>$rec->id));
 	}
 delete_items_without_rec();
-echo "finished\n";
+//echo "finished\n";
 
 function get_table_headers(&$handle,$needle){
 	if (is_null($needle) or empty($needle)) return false;

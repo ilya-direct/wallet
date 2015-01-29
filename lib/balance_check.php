@@ -1,13 +1,13 @@
 <?php
 
-require_once('../lib/mysqli_db.class.php');
+require_once(__DIR__.'/mysqli_db.class.php');
 $DB=new mysqli_DB();
 $init_params=array('date'=>'2013-12-31','realmoney'=>15114,'consider'=>15114,'diff'=>0);
 if(!$DB->record_exists('balance_check',$init_params)){
 	$DB->insert_record('balance_check',$init_params);
 }
 
-$points=$DB->get_records('balance_check');
+$points=$DB->get_records_sql('select * from balance_check order by date');
 $point_1=array_shift($points);
 $total_sum=$point_1->realmoney;
 foreach($points as $point_2){
@@ -43,7 +43,7 @@ function compare_values($actual,$mustbe,$date){
 	$m=$matches[2];
 	$d=$matches[3];
 	if ($actual==$mustbe){
-		echo "$d $m $y Сумма:{$mustbe} ok\n";
+		//echo "$d $m $y Сумма:{$mustbe} ok\n";
 	}else{
 		die("$d $m $y Сумма по расчету: $actual Должна быть: {$mustbe} false\n");
 	}
