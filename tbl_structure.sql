@@ -1,5 +1,4 @@
-CREATE DATABASE  IF NOT EXISTS `wallet` /*!40100 DEFAULT CHARACTER SET utf8 */;
-USE `wallet`;
+USE `u182420072_1`;
 -- MySQL dump 10.13  Distrib 5.6.17, for Win64 (x86_64)
 --
 -- Host: localhost    Database: wallet
@@ -32,7 +31,7 @@ CREATE TABLE `balance_check` (
   `diff` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `date` (`date`)
-) ENGINE=InnoDB AUTO_INCREMENT=105 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -53,7 +52,7 @@ CREATE TABLE `dbx_finance` (
   `in_db` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `month` (`month`,`year`)
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -68,7 +67,7 @@ CREATE TABLE `item` (
   `name` varchar(55) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `item_name_unique` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=439 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -89,7 +88,7 @@ CREATE TABLE `record` (
   KEY `fk_tcategory_record` (`tcategory`),
   CONSTRAINT `fk_itemid_record` FOREIGN KEY (`itemid`) REFERENCES `item` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `fk_tcategory_record` FOREIGN KEY (`tcategory`) REFERENCES `transaction_category` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1413 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -107,7 +106,7 @@ CREATE TABLE `transaction_category` (
   `deleted` tinyint(4) NOT NULL DEFAULT '0',
   `sign` char(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
