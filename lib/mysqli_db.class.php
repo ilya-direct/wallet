@@ -4,23 +4,25 @@ class  mysqli_DB{
 	public $DB;
 	private $db_name;
 	function mysqli_DB($host='localhost',$username='root',$password='root',$db_name='wallet',$port=3306){
+		mysqli_report(MYSQLI_REPORT_STRICT);
 		$this->db_name=$db_name;
 		$this->DB=new mysqli($host,$username,$password,$this->db_name,$port);
 		/* проверяем соединение */
+		/*
 		if (mysqli_connect_errno()) {
 			printf("Error description: %s ; Error code: %s ;\n",
 				$this->DB->connect_error,$this->DB->connect_errno);
 			exit();
 		}
+		*/
 		$this->execute_query("SET NAMES 'utf8'"); // кодировка
 	}
 	private function execute_query($sql){
 		//debug_print_backtrace();
 		//implode("\n",debug_backtrace());
 		if(($result = $this->DB->query($sql)) === false){
-			debug_print_backtrace();
-			echo "\nQuery error ". $this->DB->errno." : ".$this->DB->error."\n".$sql."\n";
-			die();
+			//debug_print_backtrace();
+			throw new Exception("Query error ". $this->DB->errno." : ".$this->DB->error."\n".$sql);
 		}
 		return $result;
 	}
@@ -30,7 +32,7 @@ class  mysqli_DB{
 		while(($rec=$mysql_result->fetch_object())!==NULL){
 			$result[]=$rec;
 		}
-		if (empty($result)) return false;
+		if (empty($result)) return array();
 		return $result;
 	}
 	public function get_records($table,array $conditions=array()){

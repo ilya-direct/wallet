@@ -11,7 +11,7 @@ require_once($CFG->wwwroot.'/lib/xlsm2csv.php');
 require_once($CFG->wwwroot.'/lib/gen_tcategory.php');
 require_once($CFG->wwwroot.'/lib/csv2db.php');
 require_once($CFG->wwwroot.'/lib/balance_check.php');
-$time='Время выполнения: '.(microtime(true) - $start).' сек.'."\n";
+$time='Time: '.(microtime(true) - $start).' сек.'."\n";
 
 $file=fopen(__DIR__.'/records.log','ab+');
 fwrite($file,date('Y-m-d H:i:s').' '.__FILE__.' '.$time);
