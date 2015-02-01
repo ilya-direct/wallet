@@ -1,23 +1,56 @@
 <?php
-
-$CFG=new stdClass();
-$CFG->wwwroot=realpath('.');
-
+if(is_null($action)) die;
+set_error_handler(function($errno, $errstr, $errfile, $errline, array $errcontext) {
+	// error was suppressed with the @-operator
+	if (0 === error_reporting()) {
+		return false;
+	}
+	throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+});
+define('EXEC',1);
+$exception=false;
 $start = microtime(true);
-ob_start();
-require_once($CFG->wwwroot.'/lib/gen_dbx_fin_table.php');
-require_once($CFG->wwwroot.'/lib/dbx_download.php');
-require_once($CFG->wwwroot.'/lib/xlsm2csv.php');
-require_once($CFG->wwwroot.'/lib/gen_tcategory.php');
-require_once($CFG->wwwroot.'/lib/csv2db.php');
-require_once($CFG->wwwroot.'/lib/balance_check.php');
-$time='Time: '.(microtime(true) - $start).' сек.'."\n";
+try{
+	$wwwroot=realpath('.');
+	switch($action){
+		case 'xls2db':
+			include_once($wwwroot.'/lib/dbx_download.php');
+			include_once($wwwroot.'/lib/xlsm2csv.php');
+			include_once($wwwroot.'/lib/csv2db.php');
+			break;
+		case 'balance_check':
+			include_once($wwwroot.'/lib/balance_check.php');
+			break;
+		case 'gen_dbx_fin_table':
+			include_once($wwwroot.'/lib/gen_dbx_fin_table.php');
+			break;
+		case 'gen_tcategory':
+			include_once($wwwroot.'/lib/gen_tcategory.php');
+			break;
+	}
+}catch(Exception $e){
+	$time=microtime(true) - $start;
+	$exception=true;
+	$err_msg=$e->getMessage();
+	$backtrace=$e->getTraceAsString();
+}finally{
+	$finish=microtime(true);
+	if($exception){
+		$status='ERROR';
+	}else{
+		$status='OK';
+		$time=$finish - $start;
+	}
+	$file=fopen(__DIR__.'/../records.log','ab+');
+	fwrite($file,date('Y-m-d H:i:s').' '.__FILE__.' '.$time.' '.$status."\n");
+	if($exception){
+		fwrite($file,$err_msg."\n");
+		fwrite($file,$backtrace."\n");
+	}
+	fclose($file);
+}
 
-$file=fopen(__DIR__.'/records.log','ab+');
-fwrite($file,date('Y-m-d H:i:s').' '.__FILE__.' '.$time);
-$log=ob_get_clean();
-fwrite($file,$log);
-fclose($file);
+// upload log file to  dropbox
 
 require_once __DIR__.'/lib/dropbox-sdk/lib/dropbox/autoload.php';
 use \Dropbox as dbx;

@@ -1,7 +1,10 @@
 <?php
-require_once(__DIR__.'/mysqli_db.class.php');
+
+if(!defined('EXEC')) throw new Exception('undef constant EXEC');
+
+include_once(__DIR__.DIRECTORY_SEPARATOR.'mysqli_db.class.php');
 $DB=new mysqli_DB();
-require_once __DIR__.'/dropbox-sdk/lib/dropbox/autoload.php';
+include_once(__DIR__.'/dropbox-sdk/lib/dropbox/autoload.php');
 use \Dropbox as dbx;
 
 $token='OprJKfb4QroAAAAAAAAAG0gfCQ7Rz-Wrg67U2dBrYQbxLx-iXwW_kvEMssAv-yay';

@@ -1,6 +1,9 @@
 <?php
-require(__DIR__.'/PHPExcel/PHPExcel.php');
-require_once(__DIR__.'/mysqli_db.class.php');
+
+if(!defined('EXEC')) throw new Exception('undef constant EXEC');
+
+include_once(__DIR__.DIRECTORY_SEPARATOR.'mysqli_db.class.php');
+include_once(__DIR__.DIRECTORY_SEPARATOR.'PHPExcel'.DIRECTORY_SEPARATOR.'PHPExcel.php');
 $DB=new mysqli_DB();
 
 $input_path=__DIR__.'/../finance_download/';

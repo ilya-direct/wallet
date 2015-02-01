@@ -1,5 +1,8 @@
 <?php
-require_once(__DIR__.'/../lib/mysqli_db.class.php');
+
+if(!defined('EXEC')) throw new Exception('undef constant EXEC');
+
+include_once(__DIR__.DIRECTORY_SEPARATOR.'mysqli_db.class.php');
 $DB=new mysqli_DB();
 
 $fields=array(
