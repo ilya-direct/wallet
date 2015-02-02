@@ -1,5 +1,5 @@
 <?php
-
+if(!defined('EXEC')) throw new Exception('undef constant EXEC');
 require_once('../lib/mysqli_db.class.php');
 $DB=new mysqli_DB();
 
@@ -28,5 +28,4 @@ for($i=$start_year;$i<=$current_year;$i++){
 		}
 	}
 }
-$i--;
 echo("finished at ".$current_year.' '.$jmax."\n");

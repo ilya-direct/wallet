@@ -1,32 +1,28 @@
 <?php
+if(!defined('EXEC')) throw new Exception('undef constant EXEC');
 
-require_once(__DIR__.'/mysqli_db.class.php');
+include_once(__DIR__.DIRECTORY_SEPARATOR.'mysqli_db.class.php');
 $DB=new mysqli_DB();
-$init_params=array('date'=>'2013-12-31','realmoney'=>15114,'consider'=>15114,'diff'=>0);
-if(!$DB->record_exists('balance_check',$init_params)){
-	$DB->insert_record('balance_check',$init_params);
-}
+if(!$DB->record_exists_sql('select * from balance_check where year(date)=2013'))
+	throw new Exception('not initialized with script init');
 
 $points=$DB->get_records_sql('select * from balance_check order by date');
 $point_1=array_shift($points);
-$total_sum=$point_1->realmoney;
+$total_sum=$point_1->consider;
 foreach($points as $point_2){
 	$sum=$DB->get_field_sql('select sum(sum) from record where date>"'.$point_1->date.'" and date<="'.$point_2->date.'"');
 	$total_sum+=$sum;
 
-	if (preg_match('/^([\d]{4})\-([\d]{2})-([\d]{2})/',$point_2->date,$matches)){
-		$y=$matches[1];
-		$m=$matches[2];
-		$d=$matches[3];
-		$maxday=date('d',mktime(0,0,0,$m+1,0,$y));
-		if ($d==$maxday){
-			$correction=get_correcting_sum($y,$m);
-			compare_values($total_sum-$correction,$point_2->consider,$point_2->date);
-		}else
-			compare_values($total_sum,$point_2->consider,$point_2->date);
-		$point_1=$point_2;
+	preg_match('/^([\d]{4})\-([\d]{2})-([\d]{2})/',$point_2->date,$matches);
+	$y=$matches[1]; $m=$matches[2]; $d=$matches[3];
+	$maxday=date('d',mktime(0,0,0,$m+1,0,$y));
+	if ($d==$maxday){
+		$correction=get_correcting_sum($y,$m);
+		compare_values($total_sum-$correction,$point_2->consider,$point_2->date);
 	}else
-		die("Неверная дата $point_2->date");
+		compare_values($total_sum,$point_2->consider,$point_2->date);
+	$point_1=$point_2;
+
 }
 
 function get_correcting_sum($y,$m){
@@ -38,13 +34,6 @@ function get_correcting_sum($y,$m){
 }
 
 function compare_values($actual,$mustbe,$date){
-	preg_match('/^([\d]{4})\-([\d]{2})-([\d]{2})/',$date,$matches);
-	$y=$matches[1];
-	$m=$matches[2];
-	$d=$matches[3];
-	if ($actual==$mustbe){
-		//echo "$d $m $y Сумма:{$mustbe} ok\n";
-	}else{
-		die("$d $m $y Сумма по расчету: $actual Должна быть: {$mustbe} false\n");
-	}
+	if ($actual!=$mustbe)
+		throw new Exception("$date Сумма по расчету: $actual Должна быть: {$mustbe} false\n");
 }

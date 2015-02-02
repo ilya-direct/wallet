@@ -13,33 +13,30 @@ function get_item_id($item){
 function insert_transaction_multiple($date,$tcategory,$entries){
 	Global $DB;
 	$tcategory_parts=explode('_',$tcategory);
-	if(count($tcategory_parts)!==3 or $tcategory_parts[2]!='multiple'){
-		die("Категория tcategory не является multiple $tcategory\n");
-	}
+	if(count($tcategory_parts)!==3 or $tcategory_parts[2]!='multiple')
+		throw new Exception("Категория tcategory не является multiple $tcategory\n $date");
 	list($y,$m,$d)=explode('.',$date);
 	$tcategory_id=$DB->get_field('transaction_category','id',array('name' => $tcategory,'deleted'=>0));
-	if(!$tcategory_id or !checkdate($m,$d,$y)){
-		die("Несуществующая категория или неверная дата $tcategory_id $date\n");
-	}
+	if(!$tcategory_id or !checkdate($m,$d,$y))
+		throw new Exception("Несуществующая категория или неверная дата $tcategory_id $date\n");
+
 	$sign=$DB->get_field('transaction_category','sign',array('id'=>$tcategory_id));
 	if ($sign=='+') $sign=1;
 		elseif($sign=='-') $sign=-1;
-	else { die("Не указан знак категории multiple $tcategory\n"); }
+	else
+		throw new Exception("Не указан знак категории multiple $tcategory\n");
 
 	$available_ids=$DB->get_fieldset_sql('select id from record where `date`="'.$date.'" and `tcategory`='.$tcategory_id);
 
-	foreach($entries as $k => $entry){
+	foreach($entries as $entry){
 		$entry->sum=$sign * abs((int)$entry->sum);
 		$entry->itemid=get_item_id($entry->item);
-		if (!$entry->sum or !$entry->itemid){
-			echo "Нет суммы или пусное описание $date : $entry->sum $entry->item";
-			unset($entries[$k]);
-			continue;
-		}
+		if (!$entry->sum or !$entry->itemid)
+			throw new Exception("Нет суммы или пусное описание $date : $entry->sum $entry->item");
+		unset($entry->item);
 		$entry->tcategory=$tcategory_id;
 		$entry->date=$date;
 		$entry->id=array_shift($available_ids);
-		unset($entry->item);
 		if(is_null($entry->id)){
 			$DB->insert_record('record',$entry);
 		}else{
@@ -53,17 +50,15 @@ function insert_transaction_multiple($date,$tcategory,$entries){
 
 function insert_transaction_single($date,$tcategory,$sum,$item,$with_zero_sum=false){
 	Global $DB;
-	$sum=(int) $sum;
 	$tcategory_id=$DB->get_field('transaction_category','id',array('name' => $tcategory,'deleted'=>0));
 	$sign=$DB->get_field('transaction_category','sign',array('id'=>$tcategory_id));
+	$sum=(int) $sum;
 	if ($sign=='+') $sum=abs($sum);
-	if ($sign=='-') $sum=-abs($sum);
+		elseif ($sign=='-') $sum=-abs($sum);
 	$item_id=get_item_id($item);
 	list($y,$m,$d)=explode('.',$date);
-	if((!$with_zero_sum && $sum==0) or !$tcategory_id or !$item_id or !checkdate($m,$d,$y)){
-		echo "\n\nНеверная транзакция\nДата:{$date}\nСумма:{$sum}\nИмя:{$item}\nКатегория:{$tcategory}\n\n";
-		die();
-	}
+	if((!$with_zero_sum && $sum==0) or !$tcategory_id or !$item_id or !checkdate($m,$d,$y))
+		throw new Exception("\n\nНеверная транзакция Дата:{$date} Сумма:{$sum} Имя:{$item} Категория:{$tcategory}");
 	$params=array( 'sum'=>$sum, 'date'=>$date,'tcategory'=>$tcategory_id,'itemid'=>$item_id);
 	if (!$DB->record_exists('record',$params))
 		$DB->insert_record('record',$params);
@@ -74,8 +69,5 @@ function insert_transaction_single($date,$tcategory,$sum,$item,$with_zero_sum=fa
 function delete_transactions($date,$tcategory){
 	Global $DB;
 	$tcategory_id=$DB->get_field('transaction_category','id',array('name' => $tcategory,'deleted'=>0));
-	$tc_ids=$DB->get_fieldset_sql("select distinct tcategory from record where date='$date'");
-	if(in_array($tcategory_id,$tc_ids)){
-		$DB->delete_record_sql("delete from record where tcategory='$tcategory_id' and date='$date'");
-	}
+	$DB->delete_record_sql("delete from record where tcategory='$tcategory_id' and date='$date'");
 }

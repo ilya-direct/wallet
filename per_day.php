@@ -1,5 +1,4 @@
 <?php
-if(is_null($action)) die;
 set_error_handler(function($errno, $errstr, $errfile, $errline, array $errcontext) {
 	// error was suppressed with the @-operator
 	if (0 === error_reporting()) {
@@ -9,25 +8,15 @@ set_error_handler(function($errno, $errstr, $errfile, $errline, array $errcontex
 });
 define('EXEC',1);
 $exception=false;
+$CFG=new stdClass();
+$CFG->dataroot='';
+$CFG->wwwroot=realpath('.');
 $start = microtime(true);
 try{
-	$wwwroot=realpath('.');
-	switch($action){
-		case 'xls2db':
-			include_once($wwwroot.'/lib/dbx_download.php');
-			include_once($wwwroot.'/lib/xlsm2csv.php');
-			include_once($wwwroot.'/lib/csv2db.php');
-			break;
-		case 'balance_check':
-			include_once($wwwroot.'/lib/balance_check.php');
-			break;
-		case 'gen_dbx_fin_table':
-			include_once($wwwroot.'/lib/gen_dbx_fin_table.php');
-			break;
-		case 'gen_tcategory':
-			include_once($wwwroot.'/lib/gen_tcategory.php');
-			break;
-	}
+	include_once($CFG->wwwroot.'/lib/dbx_download.php');
+	include_once($CFG->wwwroot.'/lib/xlsm2csv.php');
+	include_once($CFG->wwwroot.'/lib/csv2db.php');
+	include_once($CFG->wwwroot.'/lib/balance_check.php');
 }catch(Exception $e){
 	$time=microtime(true) - $start;
 	$exception=true;
@@ -41,7 +30,7 @@ try{
 		$status='OK';
 		$time=$finish - $start;
 	}
-	$file=fopen(__DIR__.'/../records.log','ab+');
+	$file=fopen(__DIR__.'/records.log','ab+');
 	fwrite($file,date('Y-m-d H:i:s').' '.__FILE__.' '.$time.' '.$status."\n");
 	if($exception){
 		fwrite($file,$err_msg."\n");
