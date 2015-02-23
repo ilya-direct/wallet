@@ -59,11 +59,20 @@ function insert_transaction_single($date,$tcategory,$sum,$item,$with_zero_sum=fa
 	list($y,$m,$d)=explode('.',$date);
 	if((!$with_zero_sum && $sum==0) or !$tcategory_id or !$item_id or !checkdate($m,$d,$y))
 		throw new Exception("\n\nНеверная транзакция Дата:{$date} Сумма:{$sum} Имя:{$item} Категория:{$tcategory}");
-	$params=array( 'sum'=>$sum, 'date'=>$date,'tcategory'=>$tcategory_id,'itemid'=>$item_id);
-	if (!$DB->record_exists('record',$params))
-		$DB->insert_record('record',$params);
+	$params=array('date'=>$date,'tcategory'=>$tcategory_id,'itemid'=>$item_id);
+	$recs=$DB->get_records('record',$params);
+	$rec=array_shift($recs);
+	if(!empty($recs)){
+		throw new Exception("Найдено более одной записи в single категории ".$tcategory." дата: ".$date);
+	}
+
+	if ($rec){
+		$rec->sum=$sum;
+		$DB->update_record('record',$rec);
+	}
 	else
-		$DB->update_record('record',$params);
+		$params=array_merge($params,array('sum'=>$sum));
+		$DB->insert_record('record',$params);
 }
 
 function delete_transactions($date,$tcategory){
