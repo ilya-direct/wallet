@@ -43,11 +43,22 @@ YUI().use('module1','module2',function(Y,msg){
 	console.log(msg);
 	Y.set_hello_in_div();
 });
-YUI().use('event',function(Y){
+YUI().use('event','io-base',function(Y){
 	var link=Y.one('a');
 	link.on('click',function(e){
+		Y.on('io:complete', complete, Y, ['lorem', 'ipsum']);
+		var request = Y.io("request.php");
 		e.preventDefault();
 	});
+
+	// Define a function to handle the response data.
+	function complete(id, o, args) {
+		var id = id; // Transaction ID.
+		var data = o.responseText; // Response data.
+		var node = Y.one('#first_div');
+		node.setHTML(data);
+		var args = args[1]; // 'ipsum'.
+	};
 });
 </script>
 
