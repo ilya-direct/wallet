@@ -70,9 +70,10 @@ function insert_transaction_single($date,$tcategory,$sum,$item,$with_zero_sum=fa
 		$rec->sum=$sum;
 		$DB->update_record('record',$rec);
 	}
-	else
+	else{
 		$params=array_merge($params,array('sum'=>$sum));
 		$DB->insert_record('record',$params);
+	}
 }
 
 function delete_transactions($date,$tcategory){

@@ -41,6 +41,7 @@ try{
 
 // upload log file to  dropbox
 
+/*
 require_once __DIR__.'/lib/dropbox-sdk/lib/dropbox/autoload.php';
 use \Dropbox as dbx;
 
@@ -50,3 +51,4 @@ $client=new  dbx\Client($token,'directapp','UTF-8');
 $file=fopen(__DIR__.'/records.log','r');
 $client->uploadFile('/records.log',dbx\WriteMode::force(), $file);
 fclose($file);
+*/
