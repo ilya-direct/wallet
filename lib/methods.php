@@ -48,8 +48,9 @@ function insert_transaction_multiple($date,$tcategory,$entries){
 	}
 }
 
-function insert_transaction_single($date,$tcategory,$sum,$item,$with_zero_sum=false){
+function insert_transaction_single($date,$tcategory,$sum,$with_zero_sum=false){
 	Global $DB;
+	$item=$DB->get_field('transaction_category','value',array('name'=>$tcategory,'deleted'=>0));
 	$tcategory_id=$DB->get_field('transaction_category','id',array('name' => $tcategory,'deleted'=>0));
 	$sign=$DB->get_field('transaction_category','sign',array('id'=>$tcategory_id));
 	$sum=(int) $sum;

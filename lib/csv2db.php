@@ -82,8 +82,7 @@ foreach($recs as $rec){
 			}
 			$sign=$header_parts[0];
 			if(count($header_parts)===2){
-				$item=$DB->get_field('transaction_category','value',array('name'=>$headers[$i],'deleted'=>0));
-				insert_transaction_single($date,$headers[$i],$data[$i],$item);
+				insert_transaction_single($date,$headers[$i],$data[$i]);
 			}elseif(count($header_parts)===3 && $header_parts[2]=='multiple'){
 				$coins=explode('|',$data[$i]);
 				$coins_desc=explode('|',$data[$i+1]);
@@ -118,7 +117,7 @@ foreach($recs as $rec){
 			$total_flag=$total_flag | array_search($data[$date_index],$flags);
 			$max_date="$rec->year.$rec->month.$maxday";
 			if($data[$date_index]=='Корректировка' && ($max_date<date("Y.m.d")))
-				insert_transaction_single($max_date,'correcting',$data[$date_index+1],$data[$date_index],true);
+				insert_transaction_single($max_date,'correcting',$data[$date_index+1],true);
 		}
 	}
 	if (!($total_flag & 0b00001))
