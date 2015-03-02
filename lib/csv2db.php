@@ -116,7 +116,7 @@ foreach($recs as $rec){
 		if(in_array($data[$date_index],$flags)){
 			$total_flag=$total_flag | array_search($data[$date_index],$flags);
 			$max_date="$rec->year.$rec->month.$maxday";
-			if($data[$date_index]=='Корректировка' && ($max_date<date("Y.m.d")))
+			if($data[$date_index]==$flags[0b00001] && $DB->record_exists('balance_check',array('date'=>$max_date)))
 				insert_transaction_single($max_date,'correcting',$data[$date_index+1],true);
 		}
 	}
