@@ -258,7 +258,7 @@ select * from transaction_category;
 alter table transaction_category drop column sign;
 alter table transaction_category change column sign2 sign char(1);
 update transaction_category set sign2='-' where sign=2;
-update  dbx_finance set in_db=0;
+update  dbx_finance set `exists`=0;
 select * from item;
 select * from balance_check;
 alter table record auto_increment=1;
@@ -267,6 +267,7 @@ select * from transaction_category where id in (2,3,4,5,6,7,8,10,11,12,13,14);
 select distinct tcategory from record;
 delete from record where tcategory=1;
 
+select * from record;
 select * from  cardcheck;
 desc cardcheck;
 drop table category;
@@ -281,3 +282,70 @@ delete from item;
 delete from balance_check;
 delete from dbx_finance;
 delete from transaction_category;
+
+select * from record;
+select * from transaction_category;
+	select r.* from record r left join transaction_category tc on tc.id=r.tcategory
+			where tc.name='correcting';
+            
+select * from record where itemid=877; -- id=2701
+select * from record where date='2015-01-25'; -- id=2701
+select * from item where name like 'подарок мам%';
+select * from dbx_finance;
+select * from transaction_category;
+select * from record;
+select * from balance_check where year(date)=2013;
+
+
+drop database wall;
+
+select * from record r left join item i on i.id=r.itemid where year(r.date)='2015' and month(r.date)='2' and day(r.date)=3 order by r.date;
+delete from record where id=1511;
+delete from record where id=1431;
+
+delete from record where year(date)='2015' and month(date)='2' and sum is null;
+
+drop database walletl;
+create database wallet;
+
+delete from record where sum is null;
+select distinct tcategory from record where sum is null;
+
+select * from transaction_category;
+
+
+select sum(r.sum) from record r left join transaction_category tc on tc.id=r.tcategory 
+	where year(r.date)=2014 and tc.name in ('p_mompm','p_mom_multiple'); 
+select sum(sum)/14 from record where sum>0;
+select count(*) from record where year(date)=2014;
+
+
+select count(*) from record;
+
+select * from balance_check 
+	where year(date)=2015 
+		and month(date)=2;
+select * from record 
+	where year(date)=2015 
+		and month(date)=2;
+select r.sum from record r left join transaction_category tc on tc.id=r.tcategory
+			where tc.name='correcting' and year(r.`date`)=2015 and month(r.date)=2;
+select * from record;
+
+alter table item change `correct_name_id` `correct_item_name_id` int default null;
+
+select * from item ;
+
+create table correct_item_name (
+	`id` int not null primary key auto_increment,
+    `name` varchar(30)
+);
+desc correct_item_name;
+alter table correct_item_name add constraint `ux_cor_name` unique (`name`);
+select * from correct_item_name;
+select * from item;
+select * from item where correct_item_name_id is null order by name limit 1;
+desc correct_item_name;
+select * from correct_item_name where  `name`='2 тетрадки';
+ALTER TABLE `correct_item_name` CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
+-- ALTER TABLE `correct_item_name` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
