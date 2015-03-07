@@ -19,7 +19,7 @@ if(!empty($new_name)){
 		$item->correct_item_name_id=$rec->id;
 		$DB->update_record('item',$item);
 	}
-	dbx_change_item_name($old_name,$new_name);
+	//dbx_change_item_name($old_name,$new_name);
 }
 
 
