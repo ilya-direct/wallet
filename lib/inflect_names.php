@@ -1,6 +1,6 @@
 <?php
 
-require_once('../lib/mysqli_db.class.php');
+require_once('/../config.php');
 
 $DB=mysqli::get_instance();
 

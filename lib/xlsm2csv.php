@@ -2,7 +2,7 @@
 
 if(!defined('EXEC')) throw new Exception('undef constant EXEC');
 
-include_once(__DIR__.DIRECTORY_SEPARATOR.'mysqli_db.class.php');
+include_once(__DIR__.'/../config.php');
 include_once(__DIR__.DIRECTORY_SEPARATOR.'PHPExcel'.DIRECTORY_SEPARATOR.'PHPExcel.php');
 $DB=mysqli::get_instance();
 

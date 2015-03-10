@@ -1,9 +1,9 @@
 <?php
 if(!defined('EXEC')) throw new Exception('undef constant EXEC');
-$old_item_id=empty($_POST['item_id']) ? 0 : $_POST['item_id'];
+$old_item_id=optional_param('item_id',0,PARAM_INT);
 if(!$old_item_id) return;
 $old_name=trim($DB->get_field('item','name',array('id'=>$old_item_id)));
-$new_name=empty($_POST['item_name']) ? '' : trim($_POST['item_name']);
+$new_name=optional_param('item_name','',PARAM_RAW_TRIMMED);
 
 //dbx_change_item_name($old_name,$new_name);
 if(!empty($new_name)){

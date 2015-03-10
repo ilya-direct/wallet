@@ -1,9 +1,9 @@
 <?php
 define('EXEC',1);
-require_once(__DIR__.DIRECTORY_SEPARATOR.'lib/'.'mysqli_db.class.php');
+require_once(__DIR__.'/config.php');
 $DB=mysqli::get_instance();
 
-if(!empty($_POST['request'])){
+if(optional_param('request',false,PARAM_BOOL)){
 	require_once('lib/rename_items.php');
 }
 $item=$DB->get_record_sql('select * from item where correct_item_name_id is null order by name limit 1');
