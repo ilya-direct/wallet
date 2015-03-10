@@ -1,7 +1,7 @@
 <?php
 if(!defined('EXEC')) throw new Exception('undef constant EXEC');
 require_once('../lib/mysqli_db.class.php');
-$DB=new mysqli_DB();
+$DB=mysqli::get_instance();
 
 $y=2014;
 $m=1;

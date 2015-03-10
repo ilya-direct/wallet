@@ -1,22 +1,24 @@
 <?php
-
-class  mysqli_DB{
-	public $DB;
+defined('CONFIG') or die();
+class  mysqli{
+	static private $DB;
 	private $db_name;
-	function mysqli_DB($host='localhost',$username='root',$password='root',$db_name='wallet',$port=3306){
-		mysqli_report(MYSQLI_REPORT_STRICT);
-		$this->db_name=$db_name;
-		$this->DB=new mysqli($host,$username,$password,$this->db_name,$port);
-		/* проверяем соединение */
-		/*
-		if (mysqli_connect_errno()) {
-			printf("Error description: %s ; Error code: %s ;\n",
-				$this->DB->connect_error,$this->DB->connect_errno);
-			exit();
+	public static function get_instance(){
+		if(empty(self::$DB)){
+			return self::$DB=new self();
+		}else{
+			return self::$DB;
 		}
-		*/
-		$this->execute_query("SET NAMES 'utf8'"); // кодировка
 	}
+	private function __construct(){
+		global $CFG;
+		$this->db_name=$CFG->dbname;
+		mysqli_report(MYSQLI_REPORT_STRICT);
+		$this->DB=new mysqli($CFG->dbhost,$CFG->dbuser,$CFG->dbpass,$this->db_name,$CFG->dbport);
+		$this->execute_query("SET NAMES 'utf8'");// кодировка
+	}
+	private function __clone()    { }  // Защищаем от создания через клонирование
+	private function __wakeup()   { }  // Защищаем от создания через unserialize
 	private function execute_query($sql){
 		//debug_print_backtrace();
 		//implode("\n",debug_backtrace());

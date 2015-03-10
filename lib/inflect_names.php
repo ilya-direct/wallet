@@ -2,7 +2,7 @@
 
 require_once('../lib/mysqli_db.class.php');
 
-$DB=new mysqli_DB();
+$DB=mysqli::get_instance();
 
 $file_h=fopen('names/boys_ru.txt','r');
 while(!feof($file_h)){

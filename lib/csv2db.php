@@ -1,11 +1,8 @@
 <?php
 if(!defined('EXEC')) throw new Exception('undef constant EXEC');
 
-include_once(__DIR__.DIRECTORY_SEPARATOR.'mysqli_db.class.php');
-include_once(__DIR__.DIRECTORY_SEPARATOR.'methods.php');
-
-$DB=new mysqli_DB();
-
+include_once(__DIR__.'/../config.php');
+$DB=mysqli::get_instance();
 $input_path=__DIR__.DIRECTORY_SEPARATOR.'finance_csv';
 if(!is_dir($input_path))
 	throw new Exception('can\'t find input directory in csv2db.php');
@@ -66,7 +63,7 @@ foreach($recs as $rec){
 							'consider'=>$data[array_search('countmoney',$headers)],
 							'realmoney'=>$data[$i],
 							'diff'=>$data[array_search('difference',$headers)]);
-						if($DB->record_exists($table,$params)){
+						if($DB->record_exists($table,array('date'=>$date))){
 							$DB->update_record($table,$params);
 						}else{
 							$DB->insert_record($table,$params);

@@ -7,7 +7,7 @@ $new_name=empty($_POST['item_name']) ? '' : trim($_POST['item_name']);
 
 //dbx_change_item_name($old_name,$new_name);
 if(!empty($new_name)){
-	$DB=new mysqli_DB();
+	$DB=mysqli::get_instance();
 	$rec=$DB->get_record('correct_item_name',array('name'=>$new_name));
 	if(!$rec){
 		$rec= new stdClass();

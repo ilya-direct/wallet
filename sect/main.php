@@ -1,9 +1,9 @@
 <?php
 header("Content-Type: text/html; charset=utf-8");
 // require_once('lib/smarty/Smarty.class.php');
-require_once('../lib/mysqli_db.class.php');
+require_once(__DIR__.'/../../config.php');
 //$smarty = new Smarty();
-$DB=new mysqli_DB();
+$DB=mysqli::get_instance();
 
 $y=2014;
 $m=1;

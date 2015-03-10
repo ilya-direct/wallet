@@ -1,7 +1,7 @@
 <?php
 define('EXEC',1);
 require_once(__DIR__.DIRECTORY_SEPARATOR.'lib/'.'mysqli_db.class.php');
-$DB=new mysqli_DB();
+$DB=mysqli::get_instance();
 
 if(!empty($_POST['request'])){
 	require_once('lib/rename_items.php');

@@ -82,3 +82,175 @@ function delete_transactions($date,$tcategory){
 	$tcategory_id=$DB->get_field('transaction_category','id',array('name' => $tcategory,'deleted'=>0));
 	$DB->delete_record_sql("delete from record where tcategory='$tcategory_id' and date='$date'");
 }
+
+function optional_param($name,$default,$type){
+	if (isset($_POST[$name])) {       // POST has precedence
+		$param = $_POST[$name];
+	} else if (isset($_GET[$name])) {
+		$param = $_GET[$name];
+	} else {
+		return $default;
+	}
+
+	if (is_array($param)) {
+		throw new Exception('optional_param_array expected');
+	}
+
+	return clean_param($param, $type);
+}
+
+function optional_param_array($parname, $default, $type) {
+	if (isset($_POST[$parname])) {       // POST has precedence
+		$param = $_POST[$parname];
+	} else if (isset($_GET[$parname])) {
+		$param = $_GET[$parname];
+	} else {
+		return $default;
+	}
+	if (!is_array($param)) {
+		throw new Exception('optional_param_array() expects array parameters only: '.$parname);
+	}
+
+	$result = array();
+	foreach($param as $key=>$value) {
+		if (!preg_match('/^[a-z0-9_-]+$/i', $key)) {
+			throw new Exception('Invalid key name in optional_param_array() detected: '.$key.', parameter: '.$parname);
+			continue;
+		}
+		$result[$key] = clean_param($value, $type);
+	}
+
+	return $result;
+}
+
+
+const PARAM_RAW='raw';
+const PARAM_RAW_TRIMMED='trimmed';
+const PARAM_INT='int';
+const PARAM_FLOAT='float';
+const PARAM_NUMBER='float';
+const PARAM_ALPHA='alpha';
+const PARAM_ALPHATEXT='alphatext';
+const PARAM_ALPHANUM='alphanum';
+const PARAM_ALPHANUMEXT='alphanumtext';
+const PARAM_NUMSEQUENCE='numsequence';
+const PARAM_BOOL='bool';
+const PARAM_NOTAGS='notags';
+const PARAM_PATH='path';
+const PARAM_HOST='host';
+const PARAM_BASE64='base64';
+
+function clean_param($param, $type) {
+	if (is_array($param)) {
+		throw new Exception('clean_param() can not process arrays, please use clean_param_array() instead.');
+	} else if (is_object($param)) {
+		if (method_exists($param, '__toString')) {
+			$param = $param->__toString();
+		} else {
+			throw new coding_exception('clean_param() can not process objects, please use clean_param_array() instead.');
+		}
+	}
+	switch ($type) {
+		case PARAM_RAW:          // no cleaning at all
+			return $param;
+		case PARAM_RAW_TRIMMED:         // no cleaning, but strip leading and trailing whitespace.
+			return trim($param);
+		case PARAM_INT:
+			return (int)$param;  // Convert to integer
+		case PARAM_FLOAT:
+		case PARAM_NUMBER:
+			return (float)$param;  // Convert to float
+
+		case PARAM_ALPHA:        // Remove everything not a-z
+			return preg_replace('/[^a-zA-Z]/i', '', $param);
+
+		case PARAM_ALPHATEXT:     // Remove everything not a-zA-Z_- (originally allowed "/" too)
+			return preg_replace('/[^a-zA-Z_-]/i', '', $param);
+
+		case PARAM_ALPHANUM:     // Remove everything not a-zA-Z0-9
+			return preg_replace('/[^A-Za-z0-9]/i', '', $param);
+
+		case PARAM_ALPHANUMEXT:     // Remove everything not a-zA-Z0-9_-
+			return preg_replace('/[^A-Za-z0-9_-]/i', '', $param);
+
+		case PARAM_NUMSEQUENCE:     // Remove everything not 0-9,
+			return preg_replace('/[^0-9,]/i', '', $param);
+
+		case PARAM_BOOL:         // Convert to 1 or 0
+			$tempstr = strtolower($param);
+			if ($tempstr === 'on' or $tempstr === 'yes' or $tempstr === 'true') {
+				$param = 1;
+			} else if ($tempstr === 'off' or $tempstr === 'no'  or $tempstr === 'false') {
+				$param = 0;
+			} else {
+				$param = empty($param) ? 0 : 1;
+			}
+			return $param;
+
+		case PARAM_NOTAGS:       // Strip all tags
+			return strip_tags($param);
+
+		case PARAM_PATH:         // Strip all suspicious characters from file path
+			$param = str_replace('\\', '/', $param);
+			$param = preg_replace('~[[:cntrl:]]|[&<>"`\|\':]~u', '', $param);
+			$param = preg_replace('~\.\.+~', '', $param);
+			$param = preg_replace('~//+~', '/', $param);
+			return preg_replace('~/(\./)+~', '/', $param);
+
+		case PARAM_HOST:         // allow FQDN or IPv4 dotted quad
+			$param = preg_replace('/[^\.\d\w-]/','', $param ); // only allowed chars
+			// match ipv4 dotted quad
+			if (preg_match('/(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/',$param, $match)){
+				// confirm values are ok
+				if ( $match[0] > 255
+					|| $match[1] > 255
+					|| $match[3] > 255
+					|| $match[4] > 255 ) {
+					// hmmm, what kind of dotted quad is this?
+					$param = '';
+				}
+			} elseif ( preg_match('/^[\w\d\.-]+$/', $param) // dots, hyphens, numbers
+				&& !preg_match('/^[\.-]/',  $param) // no leading dots/hyphens
+				&& !preg_match('/[\.-]$/',  $param) // no trailing dots/hyphens
+			) {
+				// all is ok - $param is respected
+			} else {
+				// all is not ok...
+				$param='';
+			}
+			return $param;
+
+		case PARAM_BASE64:
+			if (!empty($param)) {
+				// PEM formatted strings may contain letters/numbers and the symbols
+				// forward slash: /
+				// plus sign:     +
+				// equal sign:    =
+				if (0 >= preg_match('/^([\s\w\/\+=]+)$/', trim($param))) {
+					return '';
+				}
+				$lines = preg_split('/[\s]+/', $param, -1, PREG_SPLIT_NO_EMPTY);
+				// Each line of base64 encoded data must be 64 characters in
+				// length, except for the last line which may be less than (or
+				// equal to) 64 characters long.
+				for ($i=0, $j=count($lines); $i < $j; $i++) {
+					if ($i + 1 == $j) {
+						if (64 < strlen($lines[$i])) {
+							return '';
+						}
+						continue;
+					}
+
+					if (64 != strlen($lines[$i])) {
+						return '';
+					}
+				}
+				return implode("\n",$lines);
+			} else {
+				return '';
+			}
+
+		default:                 // throw error, switched parameters in optional_param or another serious problem
+			throw new Exception("unknownparamtype ".$type);
+	}
+}

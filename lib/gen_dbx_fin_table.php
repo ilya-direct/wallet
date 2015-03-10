@@ -3,7 +3,7 @@
 if(!defined('EXEC')) throw new Exception('undef constant EXEC');
 
 include_once(__DIR__.DIRECTORY_SEPARATOR.'mysqli_db.class.php');
-$DB=new mysqli_DB();
+$DB=mysqli::get_instance();
 $start_year=2014;
 $start_month=1;
 $current_year=(int)date('Y');

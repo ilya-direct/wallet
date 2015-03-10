@@ -1,7 +1,8 @@
 <?php
+require_once(__DIR__.'/config.php');
 $action=empty($_REQUEST['action']) ? '' :$_REQUEST['action'];
 require_once(__DIR__.'/lib/mysqli_db.class.php');
-$DB=new mysqli_DB();
+$DB=mysqli::get_instance();
 switch($action){
 	case 'search':
 		if(empty($_REQUEST['str'])) return;

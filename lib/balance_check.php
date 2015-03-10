@@ -1,8 +1,8 @@
 <?php
 if(!defined('EXEC')) throw new Exception('undef constant EXEC');
 
-include_once(__DIR__.DIRECTORY_SEPARATOR.'mysqli_db.class.php');
-$DB=new mysqli_DB();
+include_once(__DIR__.'/../config.php');
+$DB=mysqli::get_instance();
 if(!$DB->record_exists_sql('select * from balance_check where year(date)=2013'))
 	throw new Exception('not initialized with script init');
 
