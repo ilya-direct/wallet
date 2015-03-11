@@ -24,6 +24,7 @@ foreach($points as $point_2){
 	$point_1=$point_2;
 
 }
+echo 'checked'."\n";
 
 function get_correcting_sum($y,$m){
 	Global $DB;

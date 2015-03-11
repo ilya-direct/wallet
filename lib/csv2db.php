@@ -1,6 +1,5 @@
 <?php
 if(!defined('EXEC')) throw new Exception('undef constant EXEC');
-
 include_once(__DIR__.'/../config.php');
 $DB=mysqli_db::get_instance();
 $input_path=__DIR__.DIRECTORY_SEPARATOR.'finance_csv';
@@ -121,6 +120,7 @@ foreach($recs as $rec){
 		throw new Exception('Отсутствуют данные о корректировке '."$rec->year-$rec->month-$maxday");
 
 	fclose($file_handle);
+	echo "file $yearmonth imported to db \n";
 	$DB->set_field('dbx_finance','in_db',1,array('id'=>$rec->id));
 }
 delete_items_without_rec();

@@ -131,12 +131,12 @@ class  mysqli_db{
 	}
 	public function update_record($table,$obj){
 		$obj=(object) $obj;
-		$this->$_DB->select_db('INFORMATION_SCHEMA');
+		$this->_DB->select_db('INFORMATION_SCHEMA');
 		$primary=$this->get_field('COLUMNS','COLUMN_NAME',array(
 			'TABLE_SCHEMA' => $this->db_name,
 			'TABLE_NAME' => $table,
 			'COLUMN_KEY' => 'PRI'));
-		$this->$_DB->select_db($this->db_name);
+		$this->_DB->select_db($this->db_name);
 		if(property_exists($obj,$primary)){
 			$where=$this->conditions_to_sql(array("{$primary}"=>$obj->$primary));
 			unset($obj->$primary);
