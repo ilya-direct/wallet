@@ -1,4 +1,5 @@
 <?php
+require_once(__DIR__.'/config.php');
 set_error_handler(function($errno, $errstr, $errfile, $errline, array $errcontext) {
 	// error was suppressed with the @-operator
 	if (0 === error_reporting()) {
@@ -8,12 +9,9 @@ set_error_handler(function($errno, $errstr, $errfile, $errline, array $errcontex
 });
 define('EXEC',1);
 $exception=false;
-$CFG=new stdClass();
-$CFG->dataroot='';
-$CFG->wwwroot=realpath('.');
 $start = microtime(true);
 try{
-	include_once($CFG->wwwroot.'/lib/gen_dbx_fin_table.php');
+	include_once($CFG->dataroot.'/lib/gen_dbx_fin_table.php');
 }catch(Exception $e){
 	$time=microtime(true) - $start;
 	$exception=true;
@@ -37,8 +35,6 @@ try{
 }
 
 // upload log file to  dropbox
-
-require_once __DIR__.'/lib/dropbox-sdk/lib/dropbox/autoload.php';
 use \Dropbox as dbx;
 
 $token='OprJKfb4QroAAAAAAAAAG0gfCQ7Rz-Wrg67U2dBrYQbxLx-iXwW_kvEMssAv-yay';
