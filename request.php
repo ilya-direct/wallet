@@ -1,7 +1,7 @@
 <?php
 require_once(__DIR__.'/config.php');
 $action=optional_param('action','',PARAM_ALPHA);
-$DB=mysqli::get_instance();
+$DB=mysqli_db::get_instance();
 switch($action){
 	case 'search':
 		if(optional_param('str',true,PARAM_RAW_TRIMMED)) return;

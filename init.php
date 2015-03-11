@@ -11,7 +11,7 @@ set_error_handler(function($errno, $errstr, $errfile, $errline, array $errcontex
 $exception=false;
 $start = microtime(true);
 try{
-	$DB=mysqli::get_instance();
+	$DB=mysqli_db::get_instance();
 	$init_params=array('date'=>'2013-12-31','realmoney'=>15114,'consider'=>15114,'diff'=>0);
 	if(!$DB->record_exists('balance_check',$init_params)){
 		$DB->insert_record('balance_check',$init_params);

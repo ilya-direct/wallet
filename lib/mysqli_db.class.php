@@ -1,20 +1,20 @@
 <?php
 defined('CONFIG') or die();
-class  mysqli{
-	static private $DB;
+class  mysqli_db{
+	static private $_instance=null;
+	private $_DB;
 	private $db_name;
 	public static function get_instance(){
-		if(empty(self::$DB)){
-			return self::$DB=new self();
-		}else{
-			return self::$DB;
+		if(is_null(self::$_instance)){
+			self::$_instance=new self();
 		}
+		return self::$_instance;
 	}
 	private function __construct(){
 		global $CFG;
 		$this->db_name=$CFG->dbname;
 		mysqli_report(MYSQLI_REPORT_STRICT);
-		$this->DB=new mysqli($CFG->dbhost,$CFG->dbuser,$CFG->dbpass,$this->db_name,$CFG->dbport);
+		$this->_DB=new mysqli($CFG->dbhost,$CFG->dbuser,$CFG->dbpass,$this->db_name,$CFG->dbport);
 		$this->execute_query("SET NAMES 'utf8'");// кодировка
 	}
 	private function __clone()    { }  // Защищаем от создания через клонирование
@@ -22,9 +22,9 @@ class  mysqli{
 	private function execute_query($sql){
 		//debug_print_backtrace();
 		//implode("\n",debug_backtrace());
-		if(($result = $this->DB->query($sql)) === false){
+		if(($result = $this->_DB->query($sql)) === false){
 			//debug_print_backtrace();
-			throw new Exception("Query error ". $this->DB->errno." : ".$this->DB->error."\n".$sql);
+			throw new Exception("Query error ". $this->_DB->errno." : ".$this->_DB->error."\n".$sql);
 		}
 		return $result;
 	}
@@ -65,7 +65,7 @@ class  mysqli{
 	}
 	public function insert_record_sql($sql){
 		$mysql_result=$this->execute_query($sql);
-		return $this->DB->insert_id;
+		return $this->_DB->insert_id;
 	}
 	public function get_field($table,$return,$conditions=array()){
 		$select="select `{$return}` ";
@@ -131,12 +131,12 @@ class  mysqli{
 	}
 	public function update_record($table,$obj){
 		$obj=(object) $obj;
-		$this->DB->select_db('INFORMATION_SCHEMA');
+		$this->$_DB->select_db('INFORMATION_SCHEMA');
 		$primary=$this->get_field('COLUMNS','COLUMN_NAME',array(
 			'TABLE_SCHEMA' => $this->db_name,
 			'TABLE_NAME' => $table,
 			'COLUMN_KEY' => 'PRI'));
-		$this->DB->select_db($this->db_name);
+		$this->$_DB->select_db($this->db_name);
 		if(property_exists($obj,$primary)){
 			$where=$this->conditions_to_sql(array("{$primary}"=>$obj->$primary));
 			unset($obj->$primary);

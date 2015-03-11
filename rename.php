@@ -1,7 +1,7 @@
 <?php
 define('EXEC',1);
 require_once(__DIR__.'/config.php');
-$DB=mysqli::get_instance();
+$DB=mysqli_db::get_instance();
 
 if(optional_param('request',false,PARAM_BOOL)){
 	require_once('lib/rename_items.php');

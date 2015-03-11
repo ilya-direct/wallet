@@ -3,7 +3,7 @@ header("Content-Type: text/html; charset=utf-8");
 // require_once('lib/smarty/Smarty.class.php');
 require_once(__DIR__.'/../../config.php');
 //$smarty = new Smarty();
-$DB=mysqli::get_instance();
+$DB=mysqli_db::get_instance();
 
 $y=2014;
 $m=1;

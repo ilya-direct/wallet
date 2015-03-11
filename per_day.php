@@ -1,4 +1,5 @@
 <?php
+require_once(__DIR__.'/config.php');
 set_error_handler(function($errno, $errstr, $errfile, $errline, array $errcontext) {
 	// error was suppressed with the @-operator
 	if (0 === error_reporting()) {
@@ -8,15 +9,12 @@ set_error_handler(function($errno, $errstr, $errfile, $errline, array $errcontex
 });
 define('EXEC',1);
 $exception=false;
-$CFG=new stdClass();
-$CFG->dataroot='';
-$CFG->wwwroot=realpath('.');
-$start = microtime(true);
+$start=microtime(true);
 try{
-	include_once($CFG->wwwroot.'/lib/dbx_download.php');
-	include_once($CFG->wwwroot.'/lib/xlsm2csv.php');
-	include_once($CFG->wwwroot.'/lib/csv2db.php');
-	include_once($CFG->wwwroot.'/lib/balance_check.php');
+	include_once($CFG->dirroot.'/lib/dbx_download.php');
+	include_once($CFG->dirroot.'/lib/xlsm2csv.php');
+	include_once($CFG->dirroot.'/lib/csv2db.php');
+	include_once($CFG->dirroot.'/lib/balance_check.php');
 }catch(Exception $e){
 	$time=microtime(true) - $start;
 	$exception=true;

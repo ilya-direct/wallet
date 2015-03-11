@@ -7,7 +7,7 @@ $new_name=optional_param('item_name','',PARAM_RAW_TRIMMED);
 
 //dbx_change_item_name($old_name,$new_name);
 if(!empty($new_name)){
-	$DB=mysqli::get_instance();
+	$DB=mysqli_db::get_instance();
 	$rec=$DB->get_record('correct_item_name',array('name'=>$new_name));
 	if(!$rec){
 		$rec= new stdClass();

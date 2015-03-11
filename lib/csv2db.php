@@ -2,7 +2,7 @@
 if(!defined('EXEC')) throw new Exception('undef constant EXEC');
 
 include_once(__DIR__.'/../config.php');
-$DB=mysqli::get_instance();
+$DB=mysqli_db::get_instance();
 $input_path=__DIR__.DIRECTORY_SEPARATOR.'finance_csv';
 if(!is_dir($input_path))
 	throw new Exception('can\'t find input directory in csv2db.php');

@@ -3,7 +3,7 @@
 if(!defined('EXEC')) throw new Exception('undef constant EXEC');
 
 include_once(__DIR__.'/../config.php');
-$DB=mysqli::get_instance();
+$DB=mysqli_db::get_instance();
 
 $fields=array(
 	'Мама'=>array('name'=>'p_mom_multiple','sort'=>2),

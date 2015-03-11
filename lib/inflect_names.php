@@ -2,7 +2,7 @@
 
 require_once('/../config.php');
 
-$DB=mysqli::get_instance();
+$DB=mysqli_db::get_instance();
 
 $file_h=fopen('names/boys_ru.txt','r');
 while(!feof($file_h)){

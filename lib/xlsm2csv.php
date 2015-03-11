@@ -3,8 +3,7 @@
 if(!defined('EXEC')) throw new Exception('undef constant EXEC');
 
 include_once(__DIR__.'/../config.php');
-include_once(__DIR__.DIRECTORY_SEPARATOR.'PHPExcel'.DIRECTORY_SEPARATOR.'PHPExcel.php');
-$DB=mysqli::get_instance();
+$DB=mysqli_db::get_instance();
 
 $input_path=__DIR__.DIRECTORY_SEPARATOR.'finance_download'.DIRECTORY_SEPARATOR;
 if(!is_dir($input_path))

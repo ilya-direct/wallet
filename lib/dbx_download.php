@@ -1,9 +1,9 @@
 <?php
 
-//if(!defined('EXEC')) throw new Exception('undef constant EXEC');
+if(!defined('EXEC')) throw new Exception('undef constant EXEC');
 
-include_once(__DIR__.DIRECTORY_SEPARATOR.'mysqli_db.class.php');
-$DB=mysqli::get_instance();
+include_once(__DIR__.'/../config.php');
+$DB=mysqli_db::get_instance();
 include_once(__DIR__.'/dropbox-sdk/lib/dropbox/autoload.php');
 use \Dropbox as dbx;
 
