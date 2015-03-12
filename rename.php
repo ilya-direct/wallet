@@ -208,7 +208,7 @@ $assigned_items=
 		<form action='#' method="post" accept-charset="utf-8">
 			<input type='hidden' name='item_id' value='<?=$item->id?>'>
 			<input type='hidden' name='request' value=1>
-			<input id='search_box' type='text' name='item_name' value=''>
+			<input id='search_box' type='text' name='new_item_name' value=''>
 			<div id="search_advice_wrapper"></div>
 			<input type='submit' name='submit' value='Сохранить'>
 			<input type='reset' name='submit' value='Очистить'>
