@@ -7,10 +7,11 @@ if(optional_param('request',false,PARAM_BOOL)){
 	require_once('lib/rename_items.php');
 }
 $item=$DB->get_record_sql('select * from item where correct_item_name_id is null order by name limit 1');
-
+$same_renamed=$DB->get_records_sql('select it.name as item_name,cit.name as assigned,it.id as itemid from item it
+	inner join correct_item_name cit on cit.id=it.correct_item_name_id where it.name=cit.name order by it.name');
 $assigned_items=
-	$DB->get_records_sql('select it.name as item_name,cit.name as assigned from item it
-	inner join correct_item_name cit on cit.id=it.correct_item_name_id where it.name!=cit.name order by it.name')
+	$DB->get_records_sql('select it.name as item_name,cit.name as assigned,it.id as itemid from item it
+	inner join correct_item_name cit on cit.id=it.correct_item_name_id where it.name!=cit.name order by it.name');
 ?>
 <!DOCTYPE html>
 <html>
@@ -75,10 +76,10 @@ $assigned_items=
 		#old_item_name span:active { background: rgb(141, 191, 84); } /* при нажатии */
 
 	</style>
-	<!--	<link rel="stylesheet" href="css/bootstrap.min.css">-->
-		<script type="text/javascript" src="js/jquery.min.js"></script>
-	<!--	<script type="text/javascript" src="js/bootstrap.min.js"></script>-->
-<!--	<script type="text/javascript" src="js/yui.js"></script>-->
+	<script src="<?=$CFG->wwwroot?>/js/jquery.min.js""></script>
+		<link rel="stylesheet" href="<?=$CFG->wwwroot?>/lib/bootstrap-3.3.2-dist/css/bootstrap.min.css">
+		<script src="<?=$CFG->wwwroot?>/lib/bootstrap-3.3.2-dist/js/bootstrap.min.js"></script>
+<!--<script type="text/javascript" src="js/yui.js"></script>-->
 	<script type="text/javascript">
 		var suggest_count = 0;
 		var input_initial_value = '';
@@ -175,7 +176,6 @@ $assigned_items=
 			});
 			// если кликаем на поле input и есть пункты подсказки, то показываем скрытый слой
 			$('#search_box').click(function(event){
-				//alert(suggest_count);
 				if(suggest_count)
 					$('#search_advice_wrapper').show();
 				event.stopPropagation();
@@ -184,36 +184,46 @@ $assigned_items=
 			$("#old_item_name").click(function(){
 				$('#search_box').val($('#old_item_name span').text());
 			});
+
+			$("button#item_assign_remove").submit(function(){
+				$.post("/request.php", { "action":"item_assign_remove","itemid": $(this).getAttribute('itemid') },function(data){}, 'html');
+			});
 		});
 	</script>
 	<title>Корректировка элементов</title>
 
 </head>
 <body>
-	<table>
-	<? foreach($assigned_items as $assigned): ?>
-		<tr>
-			<td>
-				<?=$assigned->item_name?>
-			</td>
-			<td>=></td>
-			<td>
-				<?=$assigned->assigned?>
-			</td>
-		</tr>
-	<? endforeach;?>
-	</table>
-	<p id="old_item_name"> Имя: <span><?=$item->name?></span> </</p>
+<p id="old_item_name">Имя: <span><?=$item->name?></span></p>
 	<div class="search_area">
-		<form action='#' method="post" accept-charset="utf-8">
+		<form action='#' method="post" accept-charset="utf-8" >
 			<input type='hidden' name='item_id' value='<?=$item->id?>'>
 			<input type='hidden' name='request' value=1>
 			<input id='search_box' type='text' name='new_item_name' value=''>
 			<div id="search_advice_wrapper"></div>
-			<input type='submit' name='submit' value='Сохранить'>
-			<input type='reset' name='submit' value='Очистить'>
+			<input type='submit' name='submit'  value='Сохранить'>
+			<input type='reset' name='reset' value='Очистить'>
 		</form>
 	</div>
+	<? foreach($same_renamed as $renamed): ?>
+		<p class="btn btn-info"><button type="button" class="close" id="item_assign_remove"  itemid="<?=$renamed->itemid?>"><span aria-hidden="true">&times</span></button><?=$renamed->item_name?>  </p>
+	<? endforeach;?>
+	<table class="table table-striped">
+		<? foreach($assigned_items as $assigned): ?>
+			<tr>
+				<td>
+					<?=$assigned->item_name?>
+				</td>
+				<td>=></td>
+				<td>
+					<?=$assigned->assigned?>
+				</td>
+				<td>
+					<button type="button" class="close" id="item_assign_remove"  itemid="<?=$renamed->itemid?>"><span aria-hidden="true">&times</span></button>
+				</td>
+			</tr>
+		<? endforeach;?>
+	</table>
 </body>
 
 

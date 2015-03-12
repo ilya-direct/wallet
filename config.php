@@ -11,7 +11,7 @@ $CFG->dbuser    = 'root';
 $CFG->dbpass    = 'root';
 $CFG->dbport    = 3306;
 $CFG->wwwroot	= 'http://wallet';
-$CFG->dirroot=realpath('.');
+$CFG->dirroot=__DIR__;
 
 date_default_timezone_set('Europe/Moscow');
-require_once(__DIR__.'/lib/setup.php');
+require_once($CFG->dirroot.'/lib/setup.php');

@@ -3,14 +3,14 @@ require_once(__DIR__.'/../config.php');
 $token='OprJKfb4QroAAAAAAAAAG0gfCQ7Rz-Wrg67U2dBrYQbxLx-iXwW_kvEMssAv-yay';
 $client=new  Dropbox\Client($token,'directapp','UTF-8');
 $fname='/dev/name_assignment.txt';
-$client->getFile($fname,fopen($fname,'w+b'));
+$client->getFile($fname,fopen($CFG->dirroot.$fname,'w+b'));
 $f_handle=fopen($CFG->dirroot.$fname,'r');
 
 $DB=mysqli_db::get_instance();
 $except_ids='';
 while(!feof($f_handle)){
 	list($old_name,$new_name)=fgetcsv($f_handle);
-	$itemid=$DB->get_fieldset_sql('select
+	$itemid=$DB->get_field_sql('select
 									    i.id
 									from
 									    item i
@@ -35,12 +35,12 @@ $db_assignments=$DB->get_records_sql('select
 					        and correct_item_name_id is not null
 					        and i.id not in ('.$except_ids.')');
 
-$f_handle=fopen($CFG->dirroot.$fname,'w+b');
+$f_handle=fopen($CFG->dirroot.$fname,'a+b');
 foreach($db_assignments as $as){
 	fputcsv($f_handle,array($as->old_name,$as->new_name));
 }
 fclose($f_handle);
-$client->uploadFile("/".$fname,Dropbox\WriteMode::force(),fopen($fname,'r'));
+$client->uploadFile("/".$fname,Dropbox\WriteMode::force(),fopen($CFG->dirroot.$fname,'r'));
 $f_handle=fopen($CFG->dirroot.$fname,'r');
 while(!feof($f_handle)){
 	list($old_name,$new_name)=fgetcsv($f_handle);
