@@ -24,7 +24,7 @@ $assigned_items=
 		}
 
 		#search_box{
-			width:200px;
+			width:150px;
 			padding:2px;
 			margin:1px;
 			border:1px solid #000;
@@ -32,9 +32,9 @@ $assigned_items=
 
 		#search_advice_wrapper{
 			display:none;
-			width: 350px;
-			background-color: rgb(80, 80, 114);
-			color: rgb(255, 227, 189);
+			width: 150px;
+			background-color: rgba(202, 224, 237, 0.80);
+			color: rgb(26, 43, 43);
 			-moz-opacity: 0.95;
 			opacity: 0.95;
 			-ms-filter:"progid:DXImageTransform.Microsoft.Alpha"(Opacity=95);
@@ -60,6 +60,19 @@ $assigned_items=
 			color:#FEFFBD;
 			background-color:#818187;
 		}
+		#old_item_name span {
+			cursor: pointer;
+			color: rgba(0, 0, 0, 0.94); /* цвет текста */
+			text-decoration: none; /* убирать подчёркивание у ссылок */
+			user-select: none; /* убирать выделение текста */
+			background: rgb(242, 255, 208); /* фон кнопки */
+			padding: 3px; /* отступ от текста */
+			outline: none; /* убирать контур в Mozilla */
+
+		}
+
+		#old_item_name span:hover { background: rgb(207, 232, 113); } /* при наведении курсора мышки */
+		#old_item_name span:active { background: rgb(141, 191, 84); } /* при нажатии */
 
 	</style>
 	<!--	<link rel="stylesheet" href="css/bootstrap.min.css">-->
@@ -85,13 +98,13 @@ $assigned_items=
 
 					default:
 						// производим поиск только при вводе более 2х символов
-						if($(this).val().length>1){
+						if($(this).val().length>0){
 
 							input_initial_value = $(this).val();
 							// производим AJAX запрос к /ajax/ajax.php, передаем ему GET query, в который мы помещаем наш запрос
-							$.get("/request.php", { "action":"search","str":$(this).val() },function(data){
+							$.post("/request.php", { "action":"search","str":$(this).val() },function(data){
 								//php скрипт возвращает нам строку, ее надо распарсить в массив.
-								// возвращаемые данные: ['test','test 1','test 2','test 3']
+								// возвращаемые данные из php : ['test','test 1','test 2','test 3']
 								var list = eval("("+data+")");
 								suggest_count = list.length;
 								if(suggest_count > 0){
@@ -110,6 +123,22 @@ $assigned_items=
 				}
 			});
 
+			function key_activate(n){
+				$('#search_advice_wrapper div').eq(suggest_selected-1).removeClass('active');
+
+				if(n == 1 && suggest_selected < suggest_count){
+					suggest_selected++;
+				}else if(n == -1 && suggest_selected > 0){
+					suggest_selected--;
+				}
+
+				if( suggest_selected > 0){
+					$('#search_advice_wrapper div').eq(suggest_selected-1).addClass('active');
+					$("#search_box").val( $('#search_advice_wrapper div').eq(suggest_selected-1).text() );
+				} else {
+					$("#search_box").val( input_initial_value );
+				}
+			}
 			//считываем нажатие клавишь, уже после вывода подсказки
 			$("#search_box").keydown(function(I){
 				switch(I.keyCode) {
@@ -132,12 +161,13 @@ $assigned_items=
 			});
 
 			// делаем обработку клика по подсказке
-			$('.advice_variant').live('click',function(){
+			$(document).on('click',".advice_variant",function(){
 				// ставим текст в input поиска
 				$('#search_box').val($(this).text());
 				// прячем слой подсказки
 				$('#search_advice_wrapper').fadeOut(350).html('');
 			});
+
 
 			// если кликаем в любом месте сайта, нужно спрятать подсказку
 			$('html').click(function(){
@@ -150,24 +180,11 @@ $assigned_items=
 					$('#search_advice_wrapper').show();
 				event.stopPropagation();
 			});
+
+			$("#old_item_name").click(function(){
+				$('#search_box').val($('#old_item_name span').text());
+			});
 		});
-
-		function key_activate(n){
-			$('#search_advice_wrapper div').eq(suggest_selected-1).removeClass('active');
-
-			if(n == 1 && suggest_selected < suggest_count){
-				suggest_selected++;
-			}else if(n == -1 && suggest_selected > 0){
-				suggest_selected--;
-			}
-
-			if( suggest_selected > 0){
-				$('#search_advice_wrapper div').eq(suggest_selected-1).addClass('active');
-				$("#search_box").val( $('#search_advice_wrapper div').eq(suggest_selected-1).text() );
-			} else {
-				$("#search_box").val( input_initial_value );
-			}
-		}
 	</script>
 	<title>Корректировка элементов</title>
 
@@ -186,13 +203,15 @@ $assigned_items=
 		</tr>
 	<? endforeach;?>
 	</table>
+	<p id="old_item_name"> Имя: <span><?=$item->name?></span> </</p>
 	<div class="search_area">
 		<form action='#' method="post" accept-charset="utf-8">
 			<input type='hidden' name='item_id' value='<?=$item->id?>'>
 			<input type='hidden' name='request' value=1>
-			"<?=$item->name?>" <input id='search_box' type='text' name='item_name' value='<?=$item->name?>'>
-			<input type='submit' name='submit' value='Сохранить'>
+			<input id='search_box' type='text' name='item_name' value=''>
 			<div id="search_advice_wrapper"></div>
+			<input type='submit' name='submit' value='Сохранить'>
+			<input type='reset' name='submit' value='Очистить'>
 		</form>
 	</div>
 </body>
