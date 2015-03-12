@@ -3,10 +3,25 @@ require_once(__DIR__.'/../config.php');
 $token='OprJKfb4QroAAAAAAAAAG0gfCQ7Rz-Wrg67U2dBrYQbxLx-iXwW_kvEMssAv-yay';
 $client=new  Dropbox\Client($token,'directapp','UTF-8');
 $fname='/dev/name_assignment.txt';
-$f_handle=fopen($CFG->dirroot.$fname,'w+b');
-$client->getFile($fname,$f_handle);
+$client->getFile($fname,fopen($fname,'w+b'));
+$f_handle=fopen($CFG->dirroot.$fname,'r');
 
 $DB=mysqli_db::get_instance();
+$except_ids='';
+while(!feof($f_handle)){
+	list($old_name,$new_name)=fgetcsv($f_handle);
+	$itemid=$DB->get_fieldset_sql('select
+									    i.id
+									from
+									    item i
+									        inner join
+									    correct_item_name ci ON (i.correct_item_name_id = ci.id)
+									where
+									    i.name="'.trim($old_name).'" and ci.name="'.trim($new_name).'"');
+	if(!empty($itemid)) $except_ids.=$itemid.',';
+}
+$except_ids=rtrim($except_ids,',');
+fclose($f_handle);
 $db_assignments=$DB->get_records_sql('select
 					    i.name as old_name,
 					    ci.name as new_name,
@@ -17,8 +32,10 @@ $db_assignments=$DB->get_records_sql('select
 					    correct_item_name ci ON (i.correct_item_name_id = ci.id)
 					where
 					    i.correct_item_name_id != 0
-					        and correct_item_name_id is not null;');
+					        and correct_item_name_id is not null
+					        and i.id not in ('.$except_ids.')');
 
+$f_handle=fopen($CFG->dirroot.$fname,'w+b');
 foreach($db_assignments as $as){
 	fputcsv($f_handle,array($as->old_name,$as->new_name));
 }
@@ -38,6 +55,7 @@ while(!feof($f_handle)){
 	$item->correct_item_name_id=$rec->id;
 	$DB->update_record('item',$item);
 }
+fclose($f_handle);
 
 
 
