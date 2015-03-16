@@ -77,8 +77,8 @@ $assigned_items=
 
 	</style>
 	<script src="<?=$CFG->wwwroot?>/js/jquery.min.js""></script>
-		<link rel="stylesheet" href="<?=$CFG->wwwroot?>/lib/bootstrap-3.3.2-dist/css/bootstrap.min.css">
-		<script src="<?=$CFG->wwwroot?>/lib/bootstrap-3.3.2-dist/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="<?=$CFG->wwwroot?>/lib/bootstrap-3.3.2-dist/css/bootstrap.min.css">
+	<script src="<?=$CFG->wwwroot?>/lib/bootstrap-3.3.2-dist/js/bootstrap.min.js"></script>
 <!--<script type="text/javascript" src="js/yui.js"></script>-->
 	<script type="text/javascript">
 		var suggest_count = 0;
@@ -185,8 +185,11 @@ $assigned_items=
 				$('#search_box').val($('#old_item_name span').text());
 			});
 
-			$("button#item_assign_remove").submit(function(){
-				$.post("/request.php", { "action":"item_assign_remove","itemid": $(this).getAttribute('itemid') },function(data){}, 'html');
+			$("div#same_name button,table#item_assign button").click(function(){
+				console.log($(this).attr('itemid'));
+				$.post("/request.php", { "action":"item_assign_remove","itemid": $(this).attr('itemid') },function(data){
+					location.reload();
+				}, 'html');
 			});
 		});
 	</script>
@@ -194,7 +197,7 @@ $assigned_items=
 
 </head>
 <body>
-<p id="old_item_name">Имя: <span><?=$item->name?></span></p>
+	<p id="old_item_name">Имя: <span><?=$item->name?></span></p>
 	<div class="search_area">
 		<form action='#' method="post" accept-charset="utf-8" >
 			<input type='hidden' name='item_id' value='<?=$item->id?>'>
@@ -205,10 +208,15 @@ $assigned_items=
 			<input type='reset' name='reset' value='Очистить'>
 		</form>
 	</div>
-	<? foreach($same_renamed as $renamed): ?>
-		<p class="btn btn-info"><button type="button" class="close" id="item_assign_remove"  itemid="<?=$renamed->itemid?>"><span aria-hidden="true">&times</span></button><?=$renamed->item_name?>  </p>
-	<? endforeach;?>
-	<table class="table table-striped">
+	<div id="same_name">
+		<? foreach($same_renamed as $renamed): ?>
+			<p class="btn btn-primary btn-xs">
+				<button type="button" class="close" id="item_assign_remove"  itemid="<?=$renamed->itemid?>">&nbsp;&times</button>
+				<?=$renamed->item_name?>
+			</p>
+		<? endforeach;?>
+	</div>
+	<table id="item_assign" class="table table-striped">
 		<? foreach($assigned_items as $assigned): ?>
 			<tr>
 				<td>
@@ -219,7 +227,7 @@ $assigned_items=
 					<?=$assigned->assigned?>
 				</td>
 				<td>
-					<button type="button" class="close" id="item_assign_remove"  itemid="<?=$renamed->itemid?>"><span aria-hidden="true">&times</span></button>
+					<button type="button" class="close" id="item_assign_remove"  itemid="<?=$assigned->itemid?>"><span aria-hidden="true">&times</span></button>
 				</td>
 			</tr>
 		<? endforeach;?>

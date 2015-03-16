@@ -165,8 +165,11 @@ class  mysqli_db{
 			if($str!=='') $str.=' '.$separator;
 			if(is_numeric($value))
 				$str.=" `{$name}`={$value}";
-			else
+			elseif(is_null($value)){
+				$str.=" `{$name}`=NULL";
+			}else{
 				$str.=" `{$name}`='{$value}'";
+			}
 		}
 		return $str;
 	}
