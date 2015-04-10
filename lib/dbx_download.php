@@ -10,7 +10,7 @@ use \Dropbox as dbx;
 $token='OprJKfb4QroAAAAAAAAAG0gfCQ7Rz-Wrg67U2dBrYQbxLx-iXwW_kvEMssAv-yay';
 $client=new  dbx\Client($token,'directapp','UTF-8');
 
-$download_path=__DIR__.DIRECTORY_SEPARATOR.'finance_download'.DIRECTORY_SEPARATOR;
+$download_path=__DIR__.DIRECTORY_SEPARATOR.'finance_download';
 if(!is_dir($download_path) and !mkdir($download_path,0777,true))
 	throw new Exception('can\'t create download directory');
 
@@ -26,9 +26,9 @@ foreach( $recs as $rec){
 	if(!$info) throw new Exception('not found file '. $yearmonth);
 
 	$download_filename=$download_path.DIRECTORY_SEPARATOR.$yearmonth.'.raw';
-
 	if($info['modified']>$rec->download_time || $rec->exists==0){
-		$rec->download_time=$info['modified'];
+		$rec->download_time=date('Y-m-d H:i:s');
+		$rec->modified_time=$info['modified'];
 		$rec->file_name=$info['path'];
 		$rec->exists=1;
 		$rec->in_db=0;

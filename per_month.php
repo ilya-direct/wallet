@@ -11,7 +11,7 @@ define('EXEC',1);
 $exception=false;
 $start = microtime(true);
 try{
-	include_once($CFG->dataroot.'/lib/gen_dbx_fin_table.php');
+	include_once($CFG->dirroot.'/lib/gen_dbx_fin_table.php');
 }catch(Exception $e){
 	$time=microtime(true) - $start;
 	$exception=true;

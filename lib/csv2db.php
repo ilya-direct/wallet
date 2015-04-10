@@ -62,12 +62,14 @@ foreach($recs as $rec){
 							'consider'=>$data[array_search('countmoney',$headers)],
 							'realmoney'=>$data[$i],
 							'diff'=>$data[array_search('difference',$headers)]);
-						if($DB->record_exists($table,array('date'=>$date))){
+						$balance_check=$DB->get_record($table,array('date'=>$date));
+						if(is_object($balance_check)){
+							$params['id']=$balance_check->id;
 							$DB->update_record($table,$params);
 						}else{
 							$DB->insert_record($table,$params);
 						}
-						unset($table); unset($params);
+						unset($table); unset($params); unset($balance_check);
 					}
 				}
 				continue;

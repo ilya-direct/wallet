@@ -1,7 +1,5 @@
 <?php
-
 if(!defined('EXEC')) throw new Exception('undef constant EXEC');
-include_once(__DIR__.'/../config.php');
 $DB=mysqli_db::get_instance();
 $start_year=2014;
 $start_month=1;
