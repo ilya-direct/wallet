@@ -8,7 +8,7 @@ include_once(__DIR__.'/dropbox-sdk/lib/dropbox/autoload.php');
 use \Dropbox as dbx;
 
 $token='OprJKfb4QroAAAAAAAAAG0gfCQ7Rz-Wrg67U2dBrYQbxLx-iXwW_kvEMssAv-yay';
-$client=new  dbx\Client($token,'directapp','UTF-8');
+$client=new  dbx\Client($CFG->dbxtoken,$CFG->dbxappname,'UTF-8');
 
 $download_path=__DIR__.DIRECTORY_SEPARATOR.'finance_download';
 if(!is_dir($download_path) and !mkdir($download_path,0777,true))

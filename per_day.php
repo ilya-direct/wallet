@@ -42,9 +42,7 @@ try{
 
 
 use \Dropbox as dbx;
-$token='OprJKfb4QroAAAAAAAAAG0gfCQ7Rz-Wrg67U2dBrYQbxLx-iXwW_kvEMssAv-yay';
-$client=new  dbx\Client($token,'directapp','UTF-8');
-
+$client=new  dbx\Client($CFG->dbxtoken,$CFG->dbxappname,'UTF-8');
 $file=fopen(__DIR__.'/records.log','r');
 $client->uploadFile('/records.log',dbx\WriteMode::force(), $file);
 fclose($file);
